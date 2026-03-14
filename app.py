@@ -32,11 +32,22 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/*
+ * Palette
+ * Page bg:    #F2F2F2   (medium-light gray)
+ * Sidebar bg: #E8E8E8
+ * Cards:      #EBEBEB
+ * Inputs:     #E4E4E4
+ * Borders:    #D0D0D0
+ * Text:       #111 primary · #555 secondary
+ * Accent:     #4056CE blue
+ */
+
 /* ── Base ── */
 html, body, [class*="css"], .stApp {
     font-family: 'Inter', sans-serif !important;
-    background-color: #FDFCFC !important;
-    color: #000000 !important;
+    background-color: #F2F2F2 !important;
+    color: #111 !important;
 }
 
 /* Hide Streamlit chrome */
@@ -52,12 +63,20 @@ html, body, [class*="css"], .stApp {
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background-color: #FFFFFF !important;
-    border-right: 1px solid #E5E5E5 !important;
+    background-color: #E8E8E8 !important;
+    border-right: 1px solid #D0D0D0 !important;
 }
 [data-testid="stSidebar"] .block-container {
     padding-top: 2rem !important;
     max-width: 100% !important;
+}
+
+/* All text in sidebar */
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div {
+    color: #111 !important;
 }
 
 /* ── Typography ── */
@@ -65,11 +84,11 @@ h1, h2, h3 {
     font-family: 'Inter', sans-serif !important;
     font-weight: 700 !important;
     letter-spacing: -0.02em !important;
-    color: #000 !important;
+    color: #111 !important;
 }
-p, li, span { color: #3D3D3D; }
+p, li { color: #444; }
 
-/* ── Buttons ── */
+/* ── Buttons — default ── */
 .stButton > button {
     font-family: 'Inter', sans-serif !important;
     font-size: 0.78em !important;
@@ -79,63 +98,96 @@ p, li, span { color: #3D3D3D; }
     border-radius: 6px !important;
     padding: 6px 14px !important;
     transition: all 0.15s ease !important;
-    border: 1px solid #E5E5E5 !important;
-    background: #FFFFFF !important;
-    color: #3D3D3D !important;
+    border: 1px solid #C0C0C0 !important;
+    background: #DCDCDC !important;
+    color: #333 !important;
     box-shadow: none !important;
 }
 .stButton > button:hover {
     border-color: #4056CE !important;
     color: #4056CE !important;
-    background: #F5F7FF !important;
+    background: #D4D9F5 !important;
 }
 
-/* ── Primary button (Ask) ── */
-div[data-testid="stButton"].primary-btn > button {
-    background: #4056CE !important;
-    color: #fff !important;
-    border-color: #4056CE !important;
+/* ── Add Report button ── */
+[data-testid="stForm"] button[kind="secondaryFormSubmit"],
+[data-testid="stForm"] .stButton > button {
+    background: #CECECE !important;
+    color: #222 !important;
+    border-color: #B8B8B8 !important;
+    width: 100% !important;
 }
-div[data-testid="stButton"].primary-btn > button:hover {
-    background: #3347b8 !important;
+[data-testid="stForm"] button[kind="secondaryFormSubmit"]:hover,
+[data-testid="stForm"] .stButton > button:hover {
+    background: #D4D9F5 !important;
+    border-color: #4056CE !important;
+    color: #4056CE !important;
 }
 
 /* ── Inputs ── */
-[data-testid="stTextInput"] input,
-[data-testid="stChatInput"] textarea {
+[data-testid="stTextInput"] input {
     font-family: 'Inter', sans-serif !important;
-    background: #FFFFFF !important;
-    border: 1px solid #E5E5E5 !important;
+    background: #E4E4E4 !important;
+    border: 1px solid #C8C8C8 !important;
     border-radius: 8px !important;
-    color: #000 !important;
+    color: #111 !important;
     font-size: 0.9em !important;
-    transition: border-color 0.15s !important;
 }
-[data-testid="stTextInput"] input:focus,
+[data-testid="stTextInput"] input:focus {
+    border-color: #4056CE !important;
+    box-shadow: 0 0 0 3px rgba(64,86,206,0.12) !important;
+}
+
+/* ── Chat input box ── */
+[data-testid="stChatInput"] textarea {
+    background: #E4E4E4 !important;
+    border: 1px solid #C8C8C8 !important;
+    border-radius: 8px !important;
+    color: #111 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.9em !important;
+}
 [data-testid="stChatInput"] textarea:focus {
     border-color: #4056CE !important;
-    box-shadow: 0 0 0 3px rgba(64,86,206,0.1) !important;
+    box-shadow: 0 0 0 3px rgba(64,86,206,0.12) !important;
+}
+
+/* ── Bottom chat bar ── */
+[data-testid="stBottom"],
+[data-testid="stBottom"] > div,
+.stChatFloatingInputContainer,
+.stChatFloatingInputContainer > div {
+    background: #EBEBEB !important;
+    border-top: 1px solid #D0D0D0 !important;
 }
 
 /* ── Selectbox ── */
 [data-testid="stSelectbox"] > div > div {
-    background: #FFFFFF !important;
-    border: 1px solid #E5E5E5 !important;
+    background: #E4E4E4 !important;
+    border: 1px solid #C8C8C8 !important;
     border-radius: 8px !important;
-    font-family: 'Inter', sans-serif !important;
     font-size: 0.88em !important;
-    color: #000 !important;
+    color: #111 !important;
 }
 
-/* ── Slider ── */
+/* ── Slider — track, thumb, label, value ── */
 [data-testid="stSlider"] > div > div > div {
     background: #4056CE !important;
 }
+[data-testid="stSlider"] label,
+[data-testid="stSlider"] p,
+[data-testid="stSlider"] span,
+[data-testid="stSlider"] div[data-testid="stTickBarMin"],
+[data-testid="stSlider"] div[data-testid="stTickBarMax"] {
+    color: #333 !important;
+    font-size: 0.85em !important;
+}
 
 /* ── Toggle ── */
-[data-testid="stToggle"] label {
+[data-testid="stToggle"] label,
+[data-testid="stToggle"] p {
     font-size: 0.88em !important;
-    color: #3D3D3D !important;
+    color: #333 !important;
 }
 
 /* ── Chat messages ── */
@@ -144,35 +196,28 @@ div[data-testid="stButton"].primary-btn > button:hover {
     border: none !important;
     padding: 4px 0 !important;
 }
-
-/* User bubble */
-[data-testid="stChatMessage"]:has(img[alt="user avatar"]),
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
     flex-direction: row-reverse !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] {
-    background: #EEF1FD !important;
-    border: 1px solid #D4DAFF !important;
+    background: #D8DDFA !important;
+    border: 1px solid #BCC5F5 !important;
     border-radius: 16px 16px 4px 16px !important;
     padding: 12px 16px !important;
     font-size: 0.9em !important;
     color: #1a2a6c !important;
     max-width: 82% !important;
 }
-
-/* Assistant bubble */
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) [data-testid="stChatMessageContent"] {
-    background: #FFFFFF !important;
-    border: 1px solid #E5E5E5 !important;
+    background: #ECECEC !important;
+    border: 1px solid #D0D0D0 !important;
     border-radius: 4px 16px 16px 16px !important;
     padding: 14px 18px !important;
     font-size: 0.9em !important;
     color: #1a1a1a !important;
     max-width: 90% !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
 }
-
-/* Avatar size */
 [data-testid="stChatMessageAvatarUser"],
 [data-testid="stChatMessageAvatarAssistant"] {
     width: 30px !important;
@@ -182,50 +227,27 @@ div[data-testid="stButton"].primary-btn > button:hover {
 }
 
 /* ── Audio ── */
-audio {
-    width: 100% !important;
-    margin-top: 10px;
-    border-radius: 6px;
-}
+audio { width: 100% !important; margin-top: 10px; border-radius: 6px; }
 
-/* ── Form ── */
+/* ── Form container ── */
 [data-testid="stForm"] {
-    background: #FAFAFA;
-    border: 1px solid #E5E5E5;
+    background: #E2E2E2 !important;
+    border: 1px solid #C8C8C8 !important;
     border-radius: 10px;
     padding: 12px;
 }
 
 /* ── Alerts ── */
-[data-testid="stAlert"][data-baseweb="notification"] {
-    background: #F0F4FF !important;
-    border: 1px solid #C7D0F8 !important;
+[data-testid="stAlert"] {
+    background: #DDE3FA !important;
+    border: 1px solid #BCC5F5 !important;
     border-radius: 8px !important;
-    color: #3047b8 !important;
+    color: #2c3ea0 !important;
     font-size: 0.85em !important;
 }
 
 /* ── Divider ── */
-hr { border-color: #E5E5E5 !important; margin: 12px 0 !important; }
-
-/* ── Form submit button (Add Report) ── */
-[data-testid="stForm"] .stButton > button {
-    background: #4056CE !important;
-    color: #fff !important;
-    border-color: #4056CE !important;
-    width: 100%;
-}
-[data-testid="stForm"] .stButton > button:hover {
-    background: #3347b8 !important;
-    border-color: #3347b8 !important;
-    color: #fff !important;
-}
-
-/* ── Bottom chat bar — force light background ── */
-[data-testid="stBottom"], [data-testid="stBottom"] > div {
-    background: #FDFCFC !important;
-    border-top: 1px solid #E5E5E5 !important;
-}
+hr { border-color: #D0D0D0 !important; margin: 12px 0 !important; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
@@ -238,27 +260,27 @@ hr { border-color: #E5E5E5 !important; margin: 12px 0 !important; }
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #999;
+    color: #777;
     margin: 20px 0 8px;
 }
 
 /* ── Report card ── */
 .report-card {
-    background: #FAFAFA;
-    border: 1px solid #E5E5E5;
+    background: #DCDCDC;
+    border: 1px solid #C8C8C8;
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 6px;
     font-size: 0.8em;
-    color: #3D3D3D;
+    color: #222;
     line-height: 1.4;
     font-weight: 500;
 }
 
 /* ── Info banner ── */
 .info-banner {
-    background: #FFFFFF;
-    border: 1px solid #E5E5E5;
+    background: #EBEBEB;
+    border: 1px solid #D0D0D0;
     border-left: 3px solid #4056CE;
     border-radius: 10px;
     padding: 18px 22px;
@@ -371,9 +393,9 @@ with st.spinner("Loading reports…"):
 
 with st.sidebar:
     st.markdown("""
-        <div style="padding-bottom:16px;border-bottom:1px solid #E5E5E5">
-            <div style="font-size:1.1em;font-weight:700;color:#000;letter-spacing:-0.02em">🎙️ Fitch Voice Agent</div>
-            <div style="font-size:0.75em;color:#999;margin-top:3px">by Federico Canepa</div>
+        <div style="padding-bottom:16px;border-bottom:1px solid #C8C8C8">
+            <div style="font-size:1.1em;font-weight:700;color:#111;letter-spacing:-0.02em">🎙️ Fitch Voice Agent</div>
+            <div style="font-size:0.75em;color:#777;margin-top:3px">by Federico Canepa</div>
         </div>
     """, unsafe_allow_html=True)
 
