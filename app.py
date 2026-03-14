@@ -10,8 +10,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Push Streamlit Cloud secrets into os.environ so all modules see them via os.getenv()
-for _k, _v in st.secrets.items():
-    os.environ.setdefault(_k, str(_v))
+try:
+    for _k, _v in st.secrets.items():
+        os.environ.setdefault(_k, str(_v))
+except Exception:
+    pass
 
 st.set_page_config(
     page_title="Fitch Voice Agent",
@@ -98,6 +101,9 @@ with st.spinner("Loading reports…"):
 
 st.title("📊 Fitch Voice Agent")
 st.caption("Ask questions about your Fitch Ratings structured finance reports.")
+
+if not os.getenv("ANTHROPIC_API_KEY"):
+    st.error("⚠️ ANTHROPIC_API_KEY is not set. Go to your Streamlit Cloud app → Settings → Secrets and add it.", icon="🔑")
 
 # ── Sidebar — report management ───────────────────────────────────────────────
 
