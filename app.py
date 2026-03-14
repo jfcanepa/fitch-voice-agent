@@ -151,7 +151,7 @@ st.markdown("""
 <strong style="color:#89b4fa;font-size:1.05em;">What is this?</strong><br><br>
 <span style="color:#cdd6f4;">
 This is an AI-powered voice research assistant built on top of published
-<a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank" style="color:#89b4fa;">Fitch Ratings structured finance reports</a>
+<a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank" style="color:#89b4fa;">Fitch Ratings Structured Finance Reports</a>
 authored by <strong>Federico Canepa</strong>. Ask any question about the reports and get an answer
 — read on screen and spoken aloud.
 </span>
