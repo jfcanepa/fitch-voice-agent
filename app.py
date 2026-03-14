@@ -146,21 +146,35 @@ with st.spinner("Loading reports…"):
 st.title("📊 Fitch Voice Agent")
 
 st.markdown("""
-<div style="background:#181825;border-left:4px solid #89b4fa;border-radius:8px;padding:16px 20px;margin-bottom:1.2rem;">
+<div style="background:#181825;border-left:4px solid #89b4fa;border-radius:8px;padding:16px 20px;margin-bottom:1rem;">
+
 <strong style="color:#89b4fa;font-size:1.05em;">What is this?</strong><br><br>
 <span style="color:#cdd6f4;">
-This is an AI-powered research assistant built on top of published
+This is an AI-powered voice research assistant built on top of published
 <a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank" style="color:#89b4fa;">Fitch Ratings structured finance reports</a>
-authored by <strong>Federico Canepa</strong>.
+authored by <strong>Federico Canepa</strong>. Ask any question about the reports and get an answer
+— read on screen and spoken aloud.
 </span>
+
+<br><br>
+<strong style="color:#f5c2e7;font-size:1.02em;">🎙️ Powered by ElevenLabs</strong><br><br>
+<span style="color:#cdd6f4;">
+Voice output is generated in real time using the
+<a href="https://elevenlabs.io" target="_blank" style="color:#f5c2e7;">ElevenLabs Text-to-Speech API</a>
+(<code style="color:#f5c2e7;">eleven_turbo_v2</code> model) via the official Python SDK.
+Each answer is converted to natural-sounding speech and streamed as an MP3 directly in the browser.
+The sidebar lets you choose from all voices available on the account and adjust playback speed —
+both controlled through the ElevenLabs <code style="color:#f5c2e7;">VoiceSettings</code> API.
+</span>
+
 <br><br>
 <strong style="color:#a6e3a1;">How to use it:</strong>
-<ol style="color:#cdd6f4;margin:8px 0 0 0;padding-left:1.2em;line-height:1.8em;">
+<ol style="color:#cdd6f4;margin:8px 0 0 0;padding-left:1.2em;line-height:1.9em;">
   <li>The reports in the sidebar are pre-loaded — no setup needed.</li>
-  <li>Type any question in the chat box below (e.g. <em>"Which trusts were downgraded?"</em>).</li>
-  <li>The agent finds the relevant excerpts and answers using Claude AI.</li>
-  <li>Press <strong>▶ Play</strong> on the audio player to hear the answer spoken aloud.</li>
-  <li>Use the <strong>Voice Settings</strong> in the sidebar to change voice or speed.</li>
+  <li>Type any question in the chat box (e.g. <em>"Which trusts were downgraded and why?"</em>).</li>
+  <li>Claude AI retrieves the relevant report excerpts and writes a concise answer.</li>
+  <li>ElevenLabs converts the answer to speech — press <strong>▶ Play</strong> to listen.</li>
+  <li>Use <strong>Voice Settings</strong> in the sidebar to switch voice or change speed.</li>
 </ol>
 </div>
 """, unsafe_allow_html=True)
