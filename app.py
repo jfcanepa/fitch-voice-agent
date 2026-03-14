@@ -138,17 +138,28 @@ if "messages" not in st.session_state:
 if "indexed_reports" not in st.session_state:
     st.session_state.indexed_reports = list(DEFAULT_REPORTS)
 if "focus_url" not in st.session_state:
-    st.session_state.focus_url = None  # URL of report to ask about next
+    st.session_state.focus_url = None
+if "show_banner" not in st.session_state:
+    st.session_state.show_banner = True
 
 with st.spinner("Loading reports…"):
     preload_reports()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
-st.title("📊 Fitch Voice Agent")
+title_col, btn_col = st.columns([9, 1])
+with title_col:
+    st.title("📊 Fitch Voice Agent")
+with btn_col:
+    st.markdown("<div style='padding-top:18px'>", unsafe_allow_html=True)
+    if st.button("ℹ️ Hide" if st.session_state.show_banner else "ℹ️ Show", key="banner_toggle"):
+        st.session_state.show_banner = not st.session_state.show_banner
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("""
-<div style="background:#181825;border-left:4px solid #89b4fa;border-radius:8px;padding:16px 20px;margin-bottom:1rem;">
+if st.session_state.show_banner:
+    st.markdown("""
+<div id="fitch-banner" style="background:#181825;border-left:4px solid #89b4fa;border-radius:8px;padding:16px 20px;margin-bottom:1rem;transition:opacity 0.8s ease;">
 
 <strong style="color:#89b4fa;font-size:1.05em;">What is this?</strong><br><br>
 <span style="color:#cdd6f4;">
@@ -179,6 +190,19 @@ both controlled through the ElevenLabs <code style="color:#f5c2e7;">VoiceSetting
   <li>Use <strong>Voice Settings</strong> in the sidebar to switch voice or change speed.</li>
 </ol>
 </div>
+
+<script>
+(function() {
+    // Auto-hide after 30 seconds with a fade
+    setTimeout(function() {
+        var el = window.parent.document.getElementById('fitch-banner');
+        if (el) {
+            el.style.opacity = '0';
+            setTimeout(function() { el.style.display = 'none'; }, 800);
+        }
+    }, 30000);
+})();
+</script>
 """, unsafe_allow_html=True)
 
 if not os.getenv("ANTHROPIC_API_KEY"):
