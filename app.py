@@ -261,6 +261,23 @@ hr { border-color: #45475a !important; margin: 12px 0 !important; }
     font-weight: 500;
 }
 
+/* ── Example question buttons ── */
+.stSidebar .stButton[data-key^="eq_"] > button {
+    background: transparent !important;
+    border-color: #313244 !important;
+    color: #6c7086 !important;
+    font-size: 0.72em !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    padding: 4px 10px !important;
+    text-align: left !important;
+}
+.stSidebar .stButton[data-key^="eq_"] > button:hover {
+    border-color: #89b4fa !important;
+    color: #89b4fa !important;
+    background: transparent !important;
+}
+
 /* ── Info banner ── */
 .info-banner {
     background: #181825;
@@ -343,6 +360,29 @@ def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes 
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 
+EXAMPLE_QUESTIONS = {
+    "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-rating-actions-on-36-ffelp-slabs-29-01-2026": [
+        "Which tranches were upgraded and why?",
+        "What drove the rating actions on these FFELP SLABS?",
+    ],
+    "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-actions-on-three-ffelp-abs-trusts-03-03-2026": [
+        "What actions were taken on the three FFELP trusts?",
+        "What key factors influenced these rating decisions?",
+    ],
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-withdraws-agsacb08-rating-after-early-amortization-12-03-2026": [
+        "Why was the AGSACB08 rating withdrawn?",
+        "What triggered the early amortization event?",
+    ],
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-affirms-withdraws-unagras-servicer-rating-at-aafc3-mex-19-02-2026": [
+        "What is UNAGRAS's servicer rating and why was it withdrawn?",
+        "What criteria were used to assess UNAGRAS as a servicer?",
+    ],
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-affirms-abbe-leasings-rating-as-servicer-20-01-2026": [
+        "What servicer rating did ABBE Leasing receive?",
+        "What strengths supported ABBE Leasing's affirmation?",
+    ],
+}
+
 DEFAULT_REPORTS = [
     "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-rating-actions-on-36-ffelp-slabs-29-01-2026",
     "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-actions-on-three-ffelp-abs-trusts-03-03-2026",
@@ -369,6 +409,7 @@ if "messages"        not in st.session_state: st.session_state.messages        =
 if "indexed_reports" not in st.session_state: st.session_state.indexed_reports = list(DEFAULT_REPORTS)
 if "focus_url"       not in st.session_state: st.session_state.focus_url       = None
 if "show_banner"     not in st.session_state: st.session_state.show_banner     = True
+if "pending_query"   not in st.session_state: st.session_state.pending_query   = None
 
 with st.spinner("Loading reports…"):
     preload_reports()
@@ -440,6 +481,11 @@ with st.sidebar:
                 f'🔗 View</button></a>',
                 unsafe_allow_html=True,
             )
+        for q in EXAMPLE_QUESTIONS.get(r, []):
+            if st.button(q, key=f"eq_{r}_{q}", use_container_width=True):
+                st.session_state.focus_url = r
+                st.session_state.pending_query = q
+                st.rerun()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
@@ -528,7 +574,14 @@ for msg in st.session_state.messages:
 
 # ── Chat input ────────────────────────────────────────────────────────────────
 
-if query := st.chat_input("Ask a question about the reports…"):
+# Pick up a question clicked in the sidebar
+if st.session_state.pending_query:
+    query = st.session_state.pending_query
+    st.session_state.pending_query = None
+else:
+    query = st.chat_input("Ask a question about the reports…")
+
+if query:
     active_focus = st.session_state.focus_url
     st.session_state.focus_url = None
 
