@@ -367,15 +367,16 @@ def generate_audio(
 
 
 def browser_tts_widget(text: str, speed: float = 1.0) -> None:
-    """Render a Web Speech API player — works in every modern browser, no API key needed."""
+    """Render a Web Speech API player using the parent window's speechSynthesis."""
     import json
     safe = json.dumps(text)
     st.components.v1.html(f"""
     <button id="tts-btn" onclick="
-        var u = new SpeechSynthesisUtterance({safe});
+        var synth = window.parent.speechSynthesis || window.speechSynthesis;
+        var u = new (window.parent.SpeechSynthesisUtterance || SpeechSynthesisUtterance)({safe});
         u.rate = {speed};
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(u);
+        synth.cancel();
+        synth.speak(u);
         this.textContent = '⏹ Stop';
         u.onend = function() {{ document.getElementById('tts-btn').textContent = '▶ Play'; }};
     " style="
@@ -423,9 +424,12 @@ DEFAULT_REPORTS = [
 
 @st.cache_resource(show_spinner=False)
 def preload_reports():
+    import hashlib
     from ingest import ingest_url, get_collection
-    if get_collection().count() == 0:
-        for url in DEFAULT_REPORTS:
+    collection = get_collection()
+    for url in DEFAULT_REPORTS:
+        doc_id = hashlib.md5(url.encode()).hexdigest()
+        if not collection.get(ids=[f"{doc_id}_0"])["ids"]:
             try:
                 ingest_url(url)
             except Exception:
