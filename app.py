@@ -59,12 +59,38 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── Default reports (pre-loaded for testers) ──────────────────────────────────
+
+DEFAULT_REPORTS = [
+    "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-rating-actions-on-36-ffelp-slabs-29-01-2026",
+]
+
+
+@st.cache_resource(show_spinner=False)
+def preload_reports():
+    """Ingest default reports once per app session (cached so it only runs once)."""
+    from ingest import ingest_url, get_collection
+    collection = get_collection()
+    loaded = []
+    if collection.count() == 0:
+        for url in DEFAULT_REPORTS:
+            try:
+                ingest_url(url)
+                loaded.append(url)
+            except Exception:
+                pass
+    return loaded
+
+
 # ── Session state ─────────────────────────────────────────────────────────────
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "indexed_reports" not in st.session_state:
-    st.session_state.indexed_reports = []
+    st.session_state.indexed_reports = list(DEFAULT_REPORTS)
+
+with st.spinner("Loading reports…"):
+    preload_reports()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
