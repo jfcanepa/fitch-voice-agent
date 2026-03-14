@@ -112,6 +112,10 @@ st.markdown("""
 
 DEFAULT_REPORTS = [
     "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-rating-actions-on-36-ffelp-slabs-29-01-2026",
+    "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-actions-on-three-ffelp-abs-trusts-03-03-2026",
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-withdraws-agsacb08-rating-after-early-amortization-12-03-2026",
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-affirms-withdraws-unagras-servicer-rating-at-aafc3-mex-19-02-2026",
+    "https://www.fitchratings.com/research/es/structured-finance/fitch-affirms-abbe-leasings-rating-as-servicer-20-01-2026",
 ]
 
 
@@ -205,7 +209,7 @@ with st.sidebar:
     if st.session_state.indexed_reports:
         for r in st.session_state.indexed_reports:
             label = r.rstrip("/").split("/")[-1].replace("-", " ").title()[:38]
-            st.markdown(f'<span class="report-pill">📄 {label}</span>', unsafe_allow_html=True)
+            st.markdown(f'<a href="{r}" target="_blank" class="report-pill">📄 {label}</a>', unsafe_allow_html=True)
     else:
         st.info("No reports yet. Add one above.")
 
