@@ -58,23 +58,33 @@ def get_elevenlabs_voices() -> list[dict]:
         return []
 
 
-def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> bytes | None:
+def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes | None, str]:
+    """Try ElevenLabs first, fall back to gTTS. Returns (audio_bytes, source_label)."""
     api_key = os.getenv("ELEVENLABS_API_KEY")
-    if not api_key:
-        return None
+    if api_key:
+        try:
+            from elevenlabs import ElevenLabs, VoiceSettings
+            client = ElevenLabs(api_key=api_key)
+            chunks = client.text_to_speech.convert(
+                voice_id=voice_id,
+                text=text,
+                model_id="eleven_turbo_v2",
+                output_format="mp3_44100_128",
+                voice_settings=VoiceSettings(speed=speed),
+            )
+            return b"".join(chunks), "ElevenLabs"
+        except Exception:
+            pass  # fall through to gTTS
+
+    # Free fallback: Google TTS
     try:
-        from elevenlabs import ElevenLabs, VoiceSettings
-        client = ElevenLabs(api_key=api_key)
-        chunks = client.text_to_speech.convert(
-            voice_id=voice_id,
-            text=text,
-            model_id="eleven_turbo_v2",
-            output_format="mp3_44100_128",
-            voice_settings=VoiceSettings(speed=speed),
-        )
-        return b"".join(chunks)
+        import io
+        from gtts import gTTS
+        buf = io.BytesIO()
+        gTTS(text=text, lang="en", slow=(speed < 0.85)).write_to_fp(buf)
+        return buf.getvalue(), "gTTS"
     except Exception:
-        return None
+        return None, ""
 
 
 # ── Styles ────────────────────────────────────────────────────────────────────
@@ -153,11 +163,11 @@ with st.sidebar:
             voice_ids   = [v["id"]   for v in voices]
             default_idx = next((i for i, vid in enumerate(voice_ids) if vid == default_id), 0)
 
-            selected_name = st.selectbox("Voice", voice_names, index=default_idx)
+            selected_name = st.selectbox("ElevenLabs Voice", voice_names, index=default_idx)
             selected_voice_id = voice_ids[voice_names.index(selected_name)]
         else:
             selected_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
-            st.caption("Could not load voices — using default.")
+            st.caption("ElevenLabs unavailable on this network — using Google TTS fallback.")
 
         speed = st.slider("Speed", min_value=0.7, max_value=1.5, value=1.0, step=0.05,
                           help="Playback speed of the generated audio")
@@ -227,12 +237,12 @@ if query := st.chat_input("Ask a question about your reports…"):
         audio_bytes = None
         if voice_enabled:
             with st.spinner("Generating audio…"):
-                audio_bytes = generate_audio(response, selected_voice_id, speed)
+                audio_bytes, audio_source = generate_audio(response, selected_voice_id, speed)
             if audio_bytes:
                 st.audio(audio_bytes, format="audio/mp3")
-                st.caption("▶ Press play to hear the answer")
+                st.caption(f"▶ Press play to hear the answer · via {audio_source}")
             else:
-                st.caption("⚠️ Voice unavailable — ElevenLabs free tier is blocked on cloud IPs.")
+                st.caption("⚠️ Could not generate audio.")
 
     st.session_state.messages.append({
         "role": "assistant",
