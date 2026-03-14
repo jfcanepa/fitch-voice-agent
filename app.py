@@ -1,5 +1,6 @@
 """
 app.py — Streamlit web app for the Fitch Voice Agent.
+UI inspired by ElevenLabs design system.
 """
 
 import os
@@ -18,246 +19,232 @@ except Exception:
 st.set_page_config(
     page_title="Fitch Voice Agent · Federico Canepa",
     page_icon="🎙️",
-    layout="wide",
+    layout="centered",
 )
 
-# ── Design system ─────────────────────────────────────────────────────────────
+# ── ElevenLabs-inspired design system ────────────────────────────────────────
+# Palette: #FDFCFC bg · #FFFFFF cards · #E5E5E5 borders
+# Accent:  #4056CE blue · #10B978 green · #3D3D3D secondary text
+# Font:    Inter (body/UI) — matches ElevenLabs' UI font
 
 st.markdown("""
 <style>
-/* ── Reset & base ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+/* ── Base ── */
+html, body, [class*="css"], .stApp {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #FDFCFC !important;
+    color: #000000 !important;
 }
 
-/* Hide default Streamlit chrome */
+/* Hide Streamlit chrome */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
 
-/* ── Layout ── */
+/* ── Main container ── */
 .block-container {
-    padding: 0 !important;
-    max-width: 100% !important;
+    max-width: 740px !important;
+    padding-top: 3rem !important;
+    padding-bottom: 6rem !important;
 }
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: #0a0a0a !important;
-    border-right: 1px solid #1f1f1f;
-    padding-top: 0 !important;
+    background-color: #FFFFFF !important;
+    border-right: 1px solid #E5E5E5 !important;
 }
-[data-testid="stSidebar"] > div:first-child {
-    padding-top: 0;
+[data-testid="stSidebar"] .block-container {
+    padding-top: 2rem !important;
+    max-width: 100% !important;
 }
-.sidebar-logo {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid #1f1f1f;
-    margin-bottom: 8px;
+
+/* ── Typography ── */
+h1, h2, h3 {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    color: #000 !important;
 }
-.sidebar-section-title {
-    font-size: 0.68em;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #444;
-    padding: 16px 4px 8px;
-}
-.report-card {
-    background: #111;
-    border: 1px solid #1f1f1f;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    transition: border-color 0.2s;
-}
-.report-card:hover { border-color: #333; }
-.report-title {
-    font-size: 0.8em;
-    font-weight: 500;
-    color: #ccc;
-    line-height: 1.4;
-    margin-bottom: 10px;
-}
+p, li, span { color: #3D3D3D; }
 
 /* ── Buttons ── */
 .stButton > button {
-    border-radius: 8px !important;
-    font-size: 0.8em !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.78em !important;
     font-weight: 500 !important;
-    padding: 5px 10px !important;
-    transition: all 0.15s !important;
-    border: 1px solid #2a2a2a !important;
-    background: #161616 !important;
-    color: #aaa !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
+    transition: all 0.15s ease !important;
+    border: 1px solid #E5E5E5 !important;
+    background: #FFFFFF !important;
+    color: #3D3D3D !important;
+    box-shadow: none !important;
 }
 .stButton > button:hover {
-    border-color: #444 !important;
-    color: #fff !important;
-    background: #1e1e1e !important;
-}
-.stButton > button[kind="primary"] {
-    background: #ff6b35 !important;
-    border-color: #ff6b35 !important;
-    color: #fff !important;
-}
-.btn-ask > .stButton > button {
-    background: #1a1a2e !important;
-    border-color: #3b3b6b !important;
-    color: #a0a8ff !important;
-}
-.btn-ask > .stButton > button:hover {
-    background: #22224a !important;
-    border-color: #5555aa !important;
-    color: #c0c8ff !important;
+    border-color: #4056CE !important;
+    color: #4056CE !important;
+    background: #F5F7FF !important;
 }
 
-/* ── Toggle & slider ── */
-[data-testid="stToggle"] { margin: 4px 0; }
-.stSlider { padding: 4px 0; }
+/* ── Primary button (Ask) ── */
+div[data-testid="stButton"].primary-btn > button {
+    background: #4056CE !important;
+    color: #fff !important;
+    border-color: #4056CE !important;
+}
+div[data-testid="stButton"].primary-btn > button:hover {
+    background: #3347b8 !important;
+}
+
+/* ── Inputs ── */
+[data-testid="stTextInput"] input,
+[data-testid="stChatInput"] textarea {
+    font-family: 'Inter', sans-serif !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E5E5E5 !important;
+    border-radius: 8px !important;
+    color: #000 !important;
+    font-size: 0.9em !important;
+    transition: border-color 0.15s !important;
+}
+[data-testid="stTextInput"] input:focus,
+[data-testid="stChatInput"] textarea:focus {
+    border-color: #4056CE !important;
+    box-shadow: 0 0 0 3px rgba(64,86,206,0.1) !important;
+}
+
+/* ── Selectbox ── */
+[data-testid="stSelectbox"] > div > div {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E5E5 !important;
+    border-radius: 8px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.88em !important;
+    color: #000 !important;
+}
+
+/* ── Slider ── */
 [data-testid="stSlider"] > div > div > div {
-    background: #ff6b35 !important;
+    background: #4056CE !important;
 }
 
-/* ── Chat area ── */
-.chat-wrapper {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px 24px 120px;
+/* ── Toggle ── */
+[data-testid="stToggle"] label {
+    font-size: 0.88em !important;
+    color: #3D3D3D !important;
 }
 
-/* User message */
+/* ── Chat messages ── */
+[data-testid="stChatMessage"] {
+    background: transparent !important;
+    border: none !important;
+    padding: 4px 0 !important;
+}
+
+/* User bubble */
+[data-testid="stChatMessage"]:has(img[alt="user avatar"]),
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
-    background: transparent !important;
-    flex-direction: row-reverse;
-    gap: 12px;
+    flex-direction: row-reverse !important;
 }
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > div:last-child {
-    background: #1c2a3a;
-    border: 1px solid #1e3a5f;
-    border-radius: 18px 18px 4px 18px;
-    padding: 12px 16px;
-    max-width: 80%;
-    color: #d0e4ff;
-    font-size: 0.95em;
-    line-height: 1.6;
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] {
+    background: #EEF1FD !important;
+    border: 1px solid #D4DAFF !important;
+    border-radius: 16px 16px 4px 16px !important;
+    padding: 12px 16px !important;
+    font-size: 0.9em !important;
+    color: #1a2a6c !important;
+    max-width: 82% !important;
 }
 
-/* Assistant message */
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
-    background: transparent !important;
-    gap: 12px;
-}
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > div:last-child {
-    background: #111;
-    border: 1px solid #1f1f1f;
-    border-radius: 4px 18px 18px 18px;
-    padding: 14px 18px;
-    max-width: 85%;
-    color: #e0e0e0;
-    font-size: 0.95em;
-    line-height: 1.7;
+/* Assistant bubble */
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) [data-testid="stChatMessageContent"] {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E5E5 !important;
+    border-radius: 4px 16px 16px 16px !important;
+    padding: 14px 18px !important;
+    font-size: 0.9em !important;
+    color: #1a1a1a !important;
+    max-width: 90% !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
 }
 
-/* Avatar */
+/* Avatar size */
 [data-testid="stChatMessageAvatarUser"],
 [data-testid="stChatMessageAvatarAssistant"] {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
-    border-radius: 50% !important;
-    background: #1a1a1a !important;
-    border: 1px solid #2a2a2a !important;
-    font-size: 0.9em !important;
-    flex-shrink: 0;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    font-size: 0.85em !important;
 }
 
-/* ── Audio player ── */
+/* ── Audio ── */
 audio {
     width: 100% !important;
-    height: 36px !important;
     margin-top: 10px;
-    border-radius: 8px;
-    filter: invert(0.85) hue-rotate(180deg) brightness(0.9);
-}
-
-/* ── Chat input ── */
-[data-testid="stChatInput"] {
-    background: #0d0d0d !important;
-    border-top: 1px solid #1a1a1a !important;
-    padding: 16px 24px !important;
-    position: fixed !important;
-    bottom: 0;
-    max-width: 760px;
-    left: 50%;
-    transform: translateX(-50%) translateX(160px); /* offset for sidebar */
-    width: calc(100% - 360px);
-    z-index: 999;
-}
-[data-testid="stChatInput"] textarea {
-    background: #161616 !important;
-    border: 1px solid #2a2a2a !important;
-    border-radius: 12px !important;
-    color: #e0e0e0 !important;
-    font-size: 0.95em !important;
-    padding: 12px 16px !important;
-    resize: none !important;
-}
-[data-testid="stChatInput"] textarea:focus {
-    border-color: #ff6b35 !important;
-    box-shadow: 0 0 0 2px rgba(255,107,53,0.15) !important;
-}
-
-/* ── Info box ── */
-[data-testid="stAlert"] {
-    background: #0f1a2e !important;
-    border: 1px solid #1e3a5f !important;
-    border-radius: 10px !important;
-    color: #90b8e8 !important;
-}
-
-/* ── Select box ── */
-[data-testid="stSelectbox"] > div > div {
-    background: #111 !important;
-    border: 1px solid #222 !important;
-    border-radius: 8px !important;
-    color: #ccc !important;
-}
-
-/* ── Spinner ── */
-[data-testid="stSpinner"] { color: #ff6b35; }
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-
-/* ── Banner ── */
-#fitch-banner {
-    background: #0d0d0d;
-    border: 1px solid #1f1f1f;
-    border-left: 3px solid #ff6b35;
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 28px;
-    transition: opacity 0.8s ease, max-height 0.6s ease;
-    overflow: hidden;
+    border-radius: 6px;
 }
 
 /* ── Form ── */
 [data-testid="stForm"] {
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
+    background: #FAFAFA;
+    border: 1px solid #E5E5E5;
     border-radius: 10px;
     padding: 12px;
 }
-[data-testid="stTextInput"] input {
-    background: #111 !important;
-    border: 1px solid #222 !important;
+
+/* ── Alerts ── */
+[data-testid="stAlert"][data-baseweb="notification"] {
+    background: #F0F4FF !important;
+    border: 1px solid #C7D0F8 !important;
     border-radius: 8px !important;
-    color: #ccc !important;
+    color: #3047b8 !important;
     font-size: 0.85em !important;
+}
+
+/* ── Divider ── */
+hr { border-color: #E5E5E5 !important; margin: 12px 0 !important; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #FAFAFA; }
+::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 2px; }
+
+/* ── Sidebar labels ── */
+.section-label {
+    font-size: 0.68em;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #999;
+    margin: 20px 0 8px;
+}
+
+/* ── Report card ── */
+.report-card {
+    background: #FAFAFA;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    font-size: 0.8em;
+    color: #3D3D3D;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* ── Info banner ── */
+.info-banner {
+    background: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    border-left: 3px solid #4056CE;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    transition: opacity 0.8s ease, max-height 0.6s ease, padding 0.4s ease;
+    overflow: hidden;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -274,11 +261,10 @@ def get_elevenlabs_voices() -> list[dict]:
         from elevenlabs import ElevenLabs
         client = ElevenLabs(api_key=api_key)
         response = client.voices.get_all()
-        voices = [
-            {"id": v.voice_id, "name": v.name, "category": getattr(v, "category", "other")}
-            for v in response.voices
-        ]
-        return sorted(voices, key=lambda v: v["name"])
+        return sorted(
+            [{"id": v.voice_id, "name": v.name} for v in response.voices],
+            key=lambda v: v["name"],
+        )
     except Exception:
         return []
 
@@ -299,7 +285,6 @@ def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes 
             return b"".join(chunks), "ElevenLabs"
         except Exception:
             pass
-
     try:
         import io
         from gtts import gTTS
@@ -310,7 +295,7 @@ def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes 
         return None, ""
 
 
-# ── Default reports ───────────────────────────────────────────────────────────
+# ── Data ──────────────────────────────────────────────────────────────────────
 
 DEFAULT_REPORTS = [
     "https://www.fitchratings.com/research/structured-finance/fitch-takes-various-rating-actions-on-36-ffelp-slabs-29-01-2026",
@@ -324,8 +309,7 @@ DEFAULT_REPORTS = [
 @st.cache_resource(show_spinner=False)
 def preload_reports():
     from ingest import ingest_url, get_collection
-    collection = get_collection()
-    if collection.count() == 0:
+    if get_collection().count() == 0:
         for url in DEFAULT_REPORTS:
             try:
                 ingest_url(url)
@@ -335,41 +319,32 @@ def preload_reports():
 
 # ── Session state ─────────────────────────────────────────────────────────────
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "indexed_reports" not in st.session_state:
-    st.session_state.indexed_reports = list(DEFAULT_REPORTS)
-if "focus_url" not in st.session_state:
-    st.session_state.focus_url = None
-if "show_banner" not in st.session_state:
-    st.session_state.show_banner = True
+if "messages"        not in st.session_state: st.session_state.messages        = []
+if "indexed_reports" not in st.session_state: st.session_state.indexed_reports = list(DEFAULT_REPORTS)
+if "focus_url"       not in st.session_state: st.session_state.focus_url       = None
+if "show_banner"     not in st.session_state: st.session_state.show_banner     = True
 
-with st.spinner(""):
+with st.spinner("Loading reports…"):
     preload_reports()
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.markdown("""
-    <div class="sidebar-logo">
-        <div style="font-size:1.15em;font-weight:600;color:#fff;letter-spacing:-0.02em;">
-            🎙️ Fitch Voice Agent
+        <div style="padding-bottom:16px;border-bottom:1px solid #E5E5E5">
+            <div style="font-size:1.1em;font-weight:700;color:#000;letter-spacing:-0.02em">🎙️ Fitch Voice Agent</div>
+            <div style="font-size:0.75em;color:#999;margin-top:3px">by Federico Canepa</div>
         </div>
-        <div style="font-size:0.75em;color:#555;margin-top:4px;">
-            by Federico Canepa · Powered by ElevenLabs
-        </div>
-    </div>
     """, unsafe_allow_html=True)
 
-    # ── Voice ─────────────────────────────────────────────────────────────────
-    st.markdown('<div class="sidebar-section-title">Voice</div>', unsafe_allow_html=True)
-
+    # Voice
+    st.markdown('<div class="section-label">Voice</div>', unsafe_allow_html=True)
     voice_enabled = st.toggle("Enable voice output", value=True)
 
     if voice_enabled:
         voices = get_elevenlabs_voices()
         if voices:
-            default_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+            default_id  = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
             voice_names = [v["name"] for v in voices]
             voice_ids   = [v["id"]   for v in voices]
             default_idx = next((i for i, vid in enumerate(voice_ids) if vid == default_id), 0)
@@ -378,64 +353,63 @@ with st.sidebar:
         else:
             selected_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
             st.caption("Using Google TTS fallback")
-
         speed = st.slider("Speed", min_value=0.7, max_value=1.5, value=1.0, step=0.05)
     else:
         selected_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
         speed = 1.0
 
-    # ── Reports ───────────────────────────────────────────────────────────────
-    st.markdown('<div class="sidebar-section-title">Reports</div>', unsafe_allow_html=True)
+    # Reports
+    st.markdown('<div class="section-label">Reports</div>', unsafe_allow_html=True)
 
     with st.form("add_report_form", clear_on_submit=True):
         url_input = st.text_input("URL", placeholder="https://www.fitchratings.com/research/…", label_visibility="collapsed")
-        submitted = st.form_submit_button("＋ Add Report", use_container_width=True)
-
-    if submitted and url_input.strip():
-        with st.spinner("Indexing…"):
-            try:
-                from ingest import ingest_url
-                count = ingest_url(url_input.strip())
-                if count:
-                    st.session_state.indexed_reports.append(url_input.strip())
-                    st.success(f"Indexed {count} chunks.")
-                else:
-                    st.info("Already indexed.")
-            except Exception as e:
-                st.error(f"{e}")
+        if st.form_submit_button("＋ Add Report", use_container_width=True):
+            if url_input.strip():
+                with st.spinner("Indexing…"):
+                    try:
+                        from ingest import ingest_url
+                        count = ingest_url(url_input.strip())
+                        if count:
+                            st.session_state.indexed_reports.append(url_input.strip())
+                            st.success(f"Added — {count} chunks indexed.")
+                        else:
+                            st.info("Already indexed.")
+                    except Exception as e:
+                        st.error(str(e))
 
     for r in st.session_state.indexed_reports:
         label = r.rstrip("/").split("/")[-1].replace("-", " ").title()
-        st.markdown(f"""
-        <div class="report-card">
-            <div class="report-title">{label[:60]}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="report-card">{label[:58]}</div>', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown('<div class="btn-ask">', unsafe_allow_html=True)
             if st.button("💬 Ask", key=f"ask_{r}", use_container_width=True):
                 st.session_state.focus_url = r
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<a href="{r}" target="_blank" style="text-decoration:none"><button style="width:100%;padding:5px 10px;border-radius:8px;border:1px solid #2a2a2a;background:#161616;color:#888;font-size:0.8em;cursor:pointer;font-family:Inter,sans-serif;font-weight:500;transition:all 0.15s">🔗 View</button></a>', unsafe_allow_html=True)
+            st.markdown(
+                f'<a href="{r}" target="_blank" style="text-decoration:none">'
+                f'<button style="width:100%;padding:6px;border-radius:6px;border:1px solid #E5E5E5;'
+                f'background:#fff;color:#3D3D3D;cursor:pointer;font-family:Inter,sans-serif;'
+                f'font-size:0.78em;font-weight:500;letter-spacing:0.03em;text-transform:uppercase">'
+                f'🔗 View</button></a>',
+                unsafe_allow_html=True,
+            )
 
+# ── Header ────────────────────────────────────────────────────────────────────
 
-# ── Main area ─────────────────────────────────────────────────────────────────
-
-st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
-
-# ── Title row ─────────────────────────────────────────────────────────────────
-
-tcol, bcol = st.columns([10, 1])
-with tcol:
-    st.markdown('<h2 style="font-weight:600;letter-spacing:-0.03em;color:#f0f0f0;margin:0;padding:8px 0 4px">Fitch Voice Agent</h2>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#555;font-size:0.85em;margin:0 0 20px">Ask anything about Federico Canepa\'s Fitch Ratings Structured Finance Reports</p>', unsafe_allow_html=True)
+hcol, bcol = st.columns([11, 1])
+with hcol:
+    st.markdown("""
+        <h1 style="font-size:1.9em;font-weight:700;letter-spacing:-0.03em;color:#000;margin:0 0 4px">
+            Fitch Voice Agent
+        </h1>
+        <p style="font-size:0.85em;color:#999;margin:0 0 20px;font-weight:400">
+            Ask anything about Federico Canepa's published Fitch Ratings Structured Finance Reports
+        </p>
+    """, unsafe_allow_html=True)
 with bcol:
-    st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
-    banner_label = "ℹ️" if not st.session_state.show_banner else "✕"
-    if st.button(banner_label, key="banner_toggle"):
+    st.markdown("<div style='padding-top:12px'>", unsafe_allow_html=True)
+    if st.button("ℹ️" if not st.session_state.show_banner else "✕", key="banner_toggle"):
         st.session_state.show_banner = not st.session_state.show_banner
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
@@ -444,21 +418,24 @@ with bcol:
 
 if st.session_state.show_banner:
     st.markdown("""
-<div id="fitch-banner">
-  <div style="font-size:0.82em;font-weight:600;color:#ff6b35;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px">About this app</div>
-  <p style="color:#999;font-size:0.88em;line-height:1.7;margin:0 0 14px">
-    An AI-powered voice research assistant built on
-    <a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank" style="color:#ff6b35;text-decoration:none">Fitch Ratings Structured Finance Reports</a>
-    authored by <strong style="color:#ccc">Federico Canepa</strong>.
-    Ask a question and get a spoken answer — powered by
-    <a href="https://elevenlabs.io" target="_blank" style="color:#ff6b35;text-decoration:none">ElevenLabs TTS</a>
-    (<code style="background:#1a1a1a;padding:1px 5px;border-radius:4px;font-size:0.9em">eleven_turbo_v2</code>)
-    and <strong style="color:#ccc">Claude AI</strong>.
+<div class="info-banner" id="fitch-banner">
+  <div style="font-size:0.7em;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#4056CE;margin-bottom:10px">
+    About this app
+  </div>
+  <p style="font-size:0.88em;color:#3D3D3D;line-height:1.7;margin:0 0 12px">
+    An AI-powered voice research assistant built on top of
+    <a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank"
+       style="color:#4056CE;font-weight:500;text-decoration:none">Fitch Ratings Structured Finance Reports</a>
+    authored by <strong>Federico Canepa</strong>. Answers are generated by Claude AI and spoken aloud
+    in real time using the
+    <a href="https://elevenlabs.io" target="_blank" style="color:#4056CE;font-weight:500;text-decoration:none">ElevenLabs TTS API</a>
+    (<code style="background:#F5F5F5;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#3D3D3D">eleven_turbo_v2</code>)
+    via the official Python SDK, with voice selection and speed control via <code style="background:#F5F5F5;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#3D3D3D">VoiceSettings</code>.
   </p>
-  <div style="display:flex;gap:24px;flex-wrap:wrap">
-    <div style="font-size:0.82em;color:#555">① Add or select a report in the sidebar</div>
-    <div style="font-size:0.82em;color:#555">② Type your question below</div>
-    <div style="font-size:0.82em;color:#555">③ Press ▶ Play to hear the answer</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #E5E5E5;padding-top:10px;margin-top:4px">
+    <span style="font-size:0.78em;color:#999;font-weight:500">① Select a report in the sidebar</span>
+    <span style="font-size:0.78em;color:#999;font-weight:500">② Ask a question below</span>
+    <span style="font-size:0.78em;color:#999;font-weight:500">③ Press ▶ to hear the answer</span>
   </div>
 </div>
 
@@ -469,8 +446,8 @@ if st.session_state.show_banner:
         if (el) {
             el.style.opacity = '0';
             el.style.maxHeight = '0';
-            el.style.padding = '0';
-            el.style.margin = '0';
+            el.style.padding = '0 22px';
+            el.style.marginBottom = '0';
             el.style.border = 'none';
         }
     }, 30000);
@@ -479,20 +456,21 @@ if st.session_state.show_banner:
 """, unsafe_allow_html=True)
 
 if not os.getenv("ANTHROPIC_API_KEY"):
-    st.error("ANTHROPIC_API_KEY not set — add it in Streamlit Cloud → Settings → Secrets.", icon="🔑")
+    st.error("ANTHROPIC_API_KEY not set. Add it in Streamlit Cloud → Settings → Secrets.", icon="🔑")
 
-# ── Focus banner ──────────────────────────────────────────────────────────────
+# ── Focus indicator ───────────────────────────────────────────────────────────
 
-focus_url = st.session_state.focus_url
-if focus_url:
-    focus_label = focus_url.rstrip("/").split("/")[-1].replace("-", " ").title()
+if st.session_state.focus_url:
+    focus_label = st.session_state.focus_url.rstrip("/").split("/")[-1].replace("-", " ").title()
     fc1, fc2 = st.columns([5, 1])
     with fc1:
-        st.markdown(f'<div style="background:#0f1a2e;border:1px solid #1e3a5f;border-radius:8px;padding:8px 14px;font-size:0.82em;color:#6fa8dc">📄 Focused on: <strong>{focus_label[:55]}</strong></div>', unsafe_allow_html=True)
+        st.info(f"📄 Focused on: **{focus_label[:55]}**")
     with fc2:
-        if st.button("✕ All reports", key="clear_focus"):
+        st.markdown("<div style='padding-top:8px'>", unsafe_allow_html=True)
+        if st.button("✕ Clear", key="clear_focus"):
             st.session_state.focus_url = None
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ── Chat history ──────────────────────────────────────────────────────────────
 
@@ -513,7 +491,7 @@ if query := st.chat_input("Ask a question about the reports…"):
         st.markdown(query)
 
     with st.chat_message("assistant", avatar="🎙️"):
-        with st.spinner(""):
+        with st.spinner("Thinking…"):
             try:
                 from agent import answer
                 response = answer(query, url_filter=active_focus)
@@ -524,16 +502,17 @@ if query := st.chat_input("Ask a question about the reports…"):
 
         audio_bytes = None
         if voice_enabled:
-            with st.spinner(""):
+            with st.spinner("Generating audio…"):
                 audio_bytes, audio_source = generate_audio(response, selected_voice_id, speed)
             if audio_bytes:
                 st.audio(audio_bytes, format="audio/mp3")
-                st.markdown(f'<div style="font-size:0.72em;color:#444;margin-top:4px">▶ Press play · via {audio_source}</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="font-size:0.72em;color:#999;margin-top:2px">▶ Press play · via {audio_source}</div>',
+                    unsafe_allow_html=True,
+                )
 
     st.session_state.messages.append({
         "role": "assistant",
         "content": response,
         "audio": audio_bytes,
     })
-
-st.markdown('</div>', unsafe_allow_html=True)
