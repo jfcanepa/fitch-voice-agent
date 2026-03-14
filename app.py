@@ -148,7 +148,7 @@ p, li { color: #444; }
     font-size: 0.9em !important;
 }
 [data-testid="stChatInput"] textarea::placeholder {
-    color: #444 !important;
+    color: #111 !important;
     opacity: 1 !important;
 }
 [data-testid="stChatInput"] textarea:focus {
@@ -445,7 +445,7 @@ with st.sidebar:
 
     for r in st.session_state.indexed_reports:
         label = label_from_url(r)
-        st.markdown(f'<div class="report-card">{label[:58]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="report-card" style="color:#000!important;font-weight:600">{label[:58]}</div>', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         with c1:
             if st.button("💬 Ask", key=f"ask_{r}", use_container_width=True):
