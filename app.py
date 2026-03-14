@@ -147,6 +147,10 @@ p, li { color: #444; }
     font-family: 'Inter', sans-serif !important;
     font-size: 0.9em !important;
 }
+[data-testid="stChatInput"] textarea::placeholder {
+    color: #444 !important;
+    opacity: 1 !important;
+}
 [data-testid="stChatInput"] textarea:focus {
     border-color: #4056CE !important;
     box-shadow: 0 0 0 3px rgba(64,86,206,0.12) !important;
@@ -272,9 +276,9 @@ hr { border-color: #D0D0D0 !important; margin: 12px 0 !important; }
     padding: 10px 12px;
     margin-bottom: 6px;
     font-size: 0.8em;
-    color: #222;
+    color: #000 !important;
     line-height: 1.4;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* ── Info banner ── */
