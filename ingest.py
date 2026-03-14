@@ -17,11 +17,10 @@ import chromadb
 import requests
 import tiktoken
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
-from dotenv import load_dotenv
 
-load_dotenv()
+import config
 
-CHROMA_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
+CHROMA_DIR = config.get("CHROMA_PERSIST_DIR", "./chroma_db")
 COLLECTION_NAME = "fitch_reports"
 CHUNK_TOKENS = 400
 CHUNK_OVERLAP = 50

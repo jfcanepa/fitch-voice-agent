@@ -5,21 +5,16 @@ Retrieves relevant chunks from ChromaDB, then calls Claude to synthesise
 a concise, spoken-language answer grounded in those chunks.
 """
 
-import os
-
-import anthropic
 import chromadb
+import anthropic
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
-from dotenv import load_dotenv
 
-load_dotenv()
+import config
 
-CHROMA_DIR = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
 COLLECTION_NAME = "fitch_reports"
 CLAUDE_MODEL = "claude-sonnet-4-6"
 TOP_K = 6
 
-client = anthropic.Anthropic()
 embed_fn = DefaultEmbeddingFunction()
 
 SYSTEM_PROMPT = """You are a structured finance analyst assistant with deep expertise in \
@@ -30,7 +25,8 @@ points, tables, markdown, or special characters."""
 
 
 def get_collection() -> chromadb.Collection:
-    db = chromadb.PersistentClient(path=CHROMA_DIR)
+    chroma_dir = config.get("CHROMA_PERSIST_DIR", "./chroma_db")
+    db = chromadb.PersistentClient(path=chroma_dir)
     return db.get_or_create_collection(
         name=COLLECTION_NAME,
         embedding_function=embed_fn,
@@ -69,7 +65,7 @@ def answer(query: str, verbose: bool = False) -> str:
     collection = get_collection()
 
     if collection.count() == 0:
-        return "No reports have been indexed yet. Type 'add' to index a Fitch report."
+        return "No reports have been indexed yet. Add one using the sidebar."
 
     chunks = retrieve(query, collection)
 
@@ -79,6 +75,8 @@ def answer(query: str, verbose: bool = False) -> str:
             print(f"  score={c['score']:.3f}  {c['title'][:60]}  {c['text'][:80]!r}")
 
     context = build_context(chunks)
+
+    client = anthropic.Anthropic(api_key=config.get("ANTHROPIC_API_KEY"))
     response = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=400,

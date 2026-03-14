@@ -1,5 +1,5 @@
 """
-config.py — Loads secrets from Streamlit Cloud or local .env, whichever is available.
+config.py — Returns config values from Streamlit Cloud secrets or local .env.
 """
 
 import os
@@ -8,11 +8,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-try:
-    import streamlit as st
-    # Merge Streamlit secrets into os.environ so all modules can use os.getenv()
-    for key, value in st.secrets.items():
-        if key not in os.environ:
-            os.environ[key] = str(value)
-except Exception:
-    pass  # Not running in Streamlit, .env already loaded above
+
+def get(key: str, default: str = "") -> str:
+    """Get a config value — checks Streamlit secrets first, then os.environ."""
+    try:
+        import streamlit as st
+        val = st.secrets.get(key)
+        if val:
+            return str(val)
+    except Exception:
+        pass
+    return os.getenv(key, default)

@@ -2,13 +2,14 @@
 app.py — Streamlit web app for the Fitch Voice Agent.
 """
 
-import io
 import os
 
 import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
+
+import config
 
 st.set_page_config(
     page_title="Fitch Voice Agent",
@@ -19,17 +20,24 @@ st.set_page_config(
 
 # ── Audio helper ──────────────────────────────────────────────────────────────
 
-def _generate_audio(text: str) -> bytes:
-    from elevenlabs import ElevenLabs
-    voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
-    client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
-    chunks = client.text_to_speech.convert(
-        voice_id=voice_id,
-        text=text,
-        model_id="eleven_turbo_v2",
-        output_format="mp3_44100_128",
-    )
-    return b"".join(chunks)
+def _generate_audio(text: str) -> bytes | None:
+    api_key = config.get("ELEVENLABS_API_KEY")
+    if not api_key:
+        return None
+    try:
+        from elevenlabs import ElevenLabs
+        voice_id = config.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+        client = ElevenLabs(api_key=api_key)
+        chunks = client.text_to_speech.convert(
+            voice_id=voice_id,
+            text=text,
+            model_id="eleven_turbo_v2",
+            output_format="mp3_44100_128",
+        )
+        return b"".join(chunks)
+    except Exception as e:
+        return None
+
 
 # ── Styles ────────────────────────────────────────────────────────────────────
 
@@ -90,7 +98,6 @@ with st.sidebar:
 
     st.divider()
 
-    # Show indexed reports
     if st.session_state.indexed_reports:
         st.markdown("**Indexed reports:**")
         for r in st.session_state.indexed_reports:
@@ -101,25 +108,24 @@ with st.sidebar:
 
     st.divider()
     voice_enabled = st.toggle("Play voice response", value=True)
-    st.caption("Uses ElevenLabs TTS to speak answers in your browser.")
+    if voice_enabled and not config.get("ELEVENLABS_API_KEY"):
+        st.caption("⚠️ ELEVENLABS_API_KEY not set — voice disabled.")
 
 # ── Chat history ──────────────────────────────────────────────────────────────
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"], avatar="🧑" if msg["role"] == "user" else "📊"):
         st.markdown(msg["content"])
-        if msg["role"] == "assistant" and "audio" in msg and msg["audio"]:
+        if msg.get("audio"):
             st.audio(msg["audio"], format="audio/mp3", autoplay=False)
 
 # ── Chat input ────────────────────────────────────────────────────────────────
 
 if query := st.chat_input("Ask a question about your reports…"):
-    # Show user message
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user", avatar="🧑"):
         st.markdown(query)
 
-    # Generate answer
     with st.chat_message("assistant", avatar="📊"):
         with st.spinner("Thinking…"):
             try:
@@ -130,18 +136,14 @@ if query := st.chat_input("Ask a question about your reports…"):
 
         st.markdown(response)
 
-        # Generate audio if voice enabled
         audio_bytes = None
-        if voice_enabled and os.getenv("ELEVENLABS_API_KEY"):
-            try:
-                audio_bytes = _generate_audio(response)
+        if voice_enabled:
+            audio_bytes = _generate_audio(response)
+            if audio_bytes:
                 st.audio(audio_bytes, format="audio/mp3", autoplay=True)
-            except Exception as e:
-                st.caption(f"Voice unavailable: {e}")
 
     st.session_state.messages.append({
         "role": "assistant",
         "content": response,
         "audio": audio_bytes,
     })
-
