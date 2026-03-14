@@ -261,21 +261,26 @@ hr { border-color: #45475a !important; margin: 12px 0 !important; }
     font-weight: 500;
 }
 
-/* ── Example question buttons ── */
-.stSidebar .stButton[data-key^="eq_"] > button {
-    background: transparent !important;
-    border-color: #313244 !important;
-    color: #6c7086 !important;
-    font-size: 0.72em !important;
+/* ── Suggested question buttons ── */
+.stButton[data-key^="sq_"] > button {
+    background: #181825 !important;
+    border: 1px solid #45475a !important;
+    color: #a6adc8 !important;
+    font-size: 0.82em !important;
+    font-weight: 400 !important;
     text-transform: none !important;
     letter-spacing: 0 !important;
-    padding: 4px 10px !important;
+    padding: 10px 14px !important;
     text-align: left !important;
+    white-space: normal !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    border-radius: 10px !important;
 }
-.stSidebar .stButton[data-key^="eq_"] > button:hover {
+.stButton[data-key^="sq_"] > button:hover {
     border-color: #89b4fa !important;
     color: #89b4fa !important;
-    background: transparent !important;
+    background: #1e1e2e !important;
 }
 
 /* ── Info banner ── */
@@ -481,11 +486,6 @@ with st.sidebar:
                 f'🔗 View</button></a>',
                 unsafe_allow_html=True,
             )
-        for q in EXAMPLE_QUESTIONS.get(r, []):
-            if st.button(q, key=f"eq_{r}_{q}", use_container_width=True):
-                st.session_state.focus_url = r
-                st.session_state.pending_query = q
-                st.rerun()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
@@ -563,6 +563,32 @@ if st.session_state.focus_url:
             st.session_state.focus_url = None
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
+
+# ── Example questions ─────────────────────────────────────────────────────────
+
+if st.session_state.indexed_reports and not st.session_state.messages:
+    active_url = st.session_state.focus_url
+    if active_url:
+        suggestions = [(active_url, q) for q in EXAMPLE_QUESTIONS.get(active_url, [])]
+    else:
+        suggestions = []
+        for r in st.session_state.indexed_reports:
+            for q in EXAMPLE_QUESTIONS.get(r, []):
+                suggestions.append((r, q))
+                if len(suggestions) >= 4:
+                    break
+            if len(suggestions) >= 4:
+                break
+
+    if suggestions:
+        st.markdown('<div style="font-size:0.75em;color:#6c7086;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px">Suggested questions</div>', unsafe_allow_html=True)
+        cols = st.columns(min(len(suggestions), 2))
+        for i, (r, q) in enumerate(suggestions):
+            with cols[i % 2]:
+                if st.button(q, key=f"sq_{r}_{q}", use_container_width=True):
+                    st.session_state.focus_url = r
+                    st.session_state.pending_query = q
+                    st.rerun()
 
 # ── Chat history ──────────────────────────────────────────────────────────────
 
