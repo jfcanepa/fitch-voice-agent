@@ -4,6 +4,7 @@ UI inspired by ElevenLabs design system.
 """
 
 import os
+import re
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -207,6 +208,25 @@ audio {
 /* ── Divider ── */
 hr { border-color: #E5E5E5 !important; margin: 12px 0 !important; }
 
+/* ── Form submit button (Add Report) ── */
+[data-testid="stForm"] .stButton > button {
+    background: #4056CE !important;
+    color: #fff !important;
+    border-color: #4056CE !important;
+    width: 100%;
+}
+[data-testid="stForm"] .stButton > button:hover {
+    background: #3347b8 !important;
+    border-color: #3347b8 !important;
+    color: #fff !important;
+}
+
+/* ── Bottom chat bar — force light background ── */
+[data-testid="stBottom"], [data-testid="stBottom"] > div {
+    background: #FDFCFC !important;
+    border-top: 1px solid #E5E5E5 !important;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #FAFAFA; }
@@ -248,6 +268,26 @@ hr { border-color: #E5E5E5 !important; margin: 12px 0 !important; }
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# ── Label helper ─────────────────────────────────────────────────────────────
+
+_ACRONYMS = {"Ffelp", "Abs", "Slabs", "Sf", "Cdo", "Clo", "Rmbs", "Cmbs", "Abs"}
+
+def label_from_url(url: str) -> str:
+    """Convert a Fitch URL slug into a clean readable title."""
+    slug = url.rstrip("/").split("/")[-1]
+    # Strip trailing date pattern like -29-01-2026 or -03-03-2026
+    slug = re.sub(r"-\d{2}-\d{2}-\d{4}$", "", slug)
+    words = slug.replace("-", " ").title().split()
+    # Restore known acronyms to uppercase
+    fixed = []
+    for w in words:
+        if w in _ACRONYMS:
+            fixed.append(w.upper())
+        else:
+            fixed.append(w)
+    return " ".join(fixed)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -378,7 +418,7 @@ with st.sidebar:
                         st.error(str(e))
 
     for r in st.session_state.indexed_reports:
-        label = r.rstrip("/").split("/")[-1].replace("-", " ").title()
+        label = label_from_url(r)
         st.markdown(f'<div class="report-card">{label[:58]}</div>', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         with c1:
