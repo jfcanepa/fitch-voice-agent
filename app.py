@@ -9,7 +9,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import config
+# Push Streamlit Cloud secrets into os.environ so all modules see them via os.getenv()
+for _k, _v in st.secrets.items():
+    os.environ.setdefault(_k, str(_v))
 
 st.set_page_config(
     page_title="Fitch Voice Agent",
@@ -21,12 +23,12 @@ st.set_page_config(
 # ── Audio helper ──────────────────────────────────────────────────────────────
 
 def _generate_audio(text: str) -> bytes | None:
-    api_key = config.get("ELEVENLABS_API_KEY")
+    api_key = os.getenv("ELEVENLABS_API_KEY")
     if not api_key:
         return None
     try:
         from elevenlabs import ElevenLabs
-        voice_id = config.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+        voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
         client = ElevenLabs(api_key=api_key)
         chunks = client.text_to_speech.convert(
             voice_id=voice_id,
@@ -134,7 +136,7 @@ with st.sidebar:
 
     st.divider()
     voice_enabled = st.toggle("Play voice response", value=True)
-    if voice_enabled and not config.get("ELEVENLABS_API_KEY"):
+    if voice_enabled and not os.getenv("ELEVENLABS_API_KEY"):
         st.caption("⚠️ ELEVENLABS_API_KEY not set — voice disabled.")
 
 # ── Chat history ──────────────────────────────────────────────────────────────

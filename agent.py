@@ -5,11 +5,11 @@ Retrieves relevant chunks from ChromaDB, then calls Claude to synthesise
 a concise, spoken-language answer grounded in those chunks.
 """
 
+import os
+
 import chromadb
 import anthropic
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
-
-import config
 
 COLLECTION_NAME = "fitch_reports"
 CLAUDE_MODEL = "claude-sonnet-4-6"
@@ -25,7 +25,7 @@ points, tables, markdown, or special characters."""
 
 
 def get_collection() -> chromadb.Collection:
-    chroma_dir = config.get("CHROMA_PERSIST_DIR", "./chroma_db")
+    chroma_dir = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
     db = chromadb.PersistentClient(path=chroma_dir)
     return db.get_or_create_collection(
         name=COLLECTION_NAME,
@@ -76,7 +76,7 @@ def answer(query: str, verbose: bool = False) -> str:
 
     context = build_context(chunks)
 
-    client = anthropic.Anthropic(api_key=config.get("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     response = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=400,
