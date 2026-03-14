@@ -32,22 +32,11 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/*
- * Palette
- * Page bg:    #F2F2F2   (medium-light gray)
- * Sidebar bg: #E8E8E8
- * Cards:      #EBEBEB
- * Inputs:     #E4E4E4
- * Borders:    #D0D0D0
- * Text:       #111 primary · #555 secondary
- * Accent:     #4056CE blue
- */
-
 /* ── Base ── */
 html, body, [class*="css"], .stApp {
     font-family: 'Inter', sans-serif !important;
-    background-color: #F2F2F2 !important;
-    color: #111 !important;
+    background-color: #1e1e2e !important;
+    color: #cdd6f4 !important;
 }
 
 /* Hide Streamlit chrome */
@@ -63,32 +52,28 @@ html, body, [class*="css"], .stApp {
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background-color: #E8E8E8 !important;
-    border-right: 1px solid #D0D0D0 !important;
+    background-color: #181825 !important;
+    border-right: 1px solid #45475a !important;
 }
 [data-testid="stSidebar"] .block-container {
     padding-top: 2rem !important;
     max-width: 100% !important;
 }
-
-/* All text in sidebar */
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] span,
-[data-testid="stSidebar"] div {
-    color: #111 !important;
-}
+[data-testid="stSidebar"] div { color: #cdd6f4 !important; }
 
 /* ── Typography ── */
 h1, h2, h3 {
     font-family: 'Inter', sans-serif !important;
     font-weight: 700 !important;
     letter-spacing: -0.02em !important;
-    color: #111 !important;
+    color: #cdd6f4 !important;
 }
-p, li { color: #444; }
+p, li { color: #a6adc8; }
 
-/* ── Buttons — default ── */
+/* ── Buttons ── */
 .stButton > button {
     font-family: 'Inter', sans-serif !important;
     font-size: 0.78em !important;
@@ -98,62 +83,61 @@ p, li { color: #444; }
     border-radius: 6px !important;
     padding: 6px 14px !important;
     transition: all 0.15s ease !important;
-    border: 1px solid #C0C0C0 !important;
-    background: #DCDCDC !important;
-    color: #333 !important;
+    border: 1px solid #45475a !important;
+    background: #313244 !important;
+    color: #cdd6f4 !important;
     box-shadow: none !important;
 }
 .stButton > button:hover {
-    border-color: #4056CE !important;
-    color: #4056CE !important;
-    background: #D4D9F5 !important;
+    border-color: #89b4fa !important;
+    color: #89b4fa !important;
+    background: #1e1e2e !important;
 }
 
 /* ── Add Report button ── */
-[data-testid="stForm"] button[kind="secondaryFormSubmit"],
 [data-testid="stForm"] .stButton > button {
-    background: #CECECE !important;
-    color: #222 !important;
-    border-color: #B8B8B8 !important;
+    background: #45475a !important;
+    color: #cdd6f4 !important;
+    border-color: #585b70 !important;
     width: 100% !important;
 }
-[data-testid="stForm"] button[kind="secondaryFormSubmit"]:hover,
 [data-testid="stForm"] .stButton > button:hover {
-    background: #D4D9F5 !important;
-    border-color: #4056CE !important;
-    color: #4056CE !important;
+    background: #313244 !important;
+    border-color: #89b4fa !important;
+    color: #89b4fa !important;
 }
 
 /* ── Inputs ── */
 [data-testid="stTextInput"] input {
     font-family: 'Inter', sans-serif !important;
-    background: #E4E4E4 !important;
-    border: 1px solid #C8C8C8 !important;
+    background: #313244 !important;
+    border: 1px solid #45475a !important;
     border-radius: 8px !important;
-    color: #111 !important;
+    color: #cdd6f4 !important;
     font-size: 0.9em !important;
 }
 [data-testid="stTextInput"] input:focus {
-    border-color: #4056CE !important;
-    box-shadow: 0 0 0 3px rgba(64,86,206,0.12) !important;
+    border-color: #89b4fa !important;
+    box-shadow: 0 0 0 3px rgba(137,180,250,0.15) !important;
 }
+[data-testid="stTextInput"] input::placeholder { color: #6c7086 !important; }
 
-/* ── Chat input box ── */
+/* ── Chat input ── */
 [data-testid="stChatInput"] textarea {
-    background: #E4E4E4 !important;
-    border: 1px solid #C8C8C8 !important;
+    background: #313244 !important;
+    border: 1px solid #45475a !important;
     border-radius: 8px !important;
-    color: #111 !important;
+    color: #cdd6f4 !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 0.9em !important;
 }
 [data-testid="stChatInput"] textarea::placeholder {
-    color: #111 !important;
+    color: #a6adc8 !important;
     opacity: 1 !important;
 }
 [data-testid="stChatInput"] textarea:focus {
-    border-color: #4056CE !important;
-    box-shadow: 0 0 0 3px rgba(64,86,206,0.12) !important;
+    border-color: #89b4fa !important;
+    box-shadow: 0 0 0 3px rgba(137,180,250,0.15) !important;
 }
 
 /* ── Bottom chat bar ── */
@@ -161,29 +145,27 @@ p, li { color: #444; }
 [data-testid="stBottom"] > div,
 .stChatFloatingInputContainer,
 .stChatFloatingInputContainer > div {
-    background: #EBEBEB !important;
-    border-top: 1px solid #D0D0D0 !important;
+    background: #1e1e2e !important;
+    border-top: 1px solid #45475a !important;
 }
 
 /* ── Selectbox ── */
 [data-testid="stSelectbox"] > div > div {
-    background: #E4E4E4 !important;
-    border: 1px solid #C8C8C8 !important;
+    background: #313244 !important;
+    border: 1px solid #45475a !important;
     border-radius: 8px !important;
     font-size: 0.88em !important;
-    color: #111 !important;
+    color: #cdd6f4 !important;
 }
 
-/* ── Slider — track, thumb, label, value ── */
-[data-testid="stSlider"] > div > div > div {
-    background: #4056CE !important;
-}
+/* ── Slider ── */
+[data-testid="stSlider"] > div > div > div { background: #89b4fa !important; }
 [data-testid="stSlider"] label,
 [data-testid="stSlider"] p,
 [data-testid="stSlider"] span,
 [data-testid="stSlider"] div[data-testid="stTickBarMin"],
 [data-testid="stSlider"] div[data-testid="stTickBarMax"] {
-    color: #333 !important;
+    color: #cdd6f4 !important;
     font-size: 0.85em !important;
 }
 
@@ -191,7 +173,7 @@ p, li { color: #444; }
 [data-testid="stToggle"] label,
 [data-testid="stToggle"] p {
     font-size: 0.88em !important;
-    color: #333 !important;
+    color: #cdd6f4 !important;
 }
 
 /* ── Chat messages ── */
@@ -204,30 +186,28 @@ p, li { color: #444; }
     flex-direction: row-reverse !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] {
-    background: #D8DDFA !important;
-    border: 1px solid #BCC5F5 !important;
+    background: #1e3a5f !important;
+    border: 1px solid #2a5298 !important;
     border-radius: 16px 16px 4px 16px !important;
     padding: 12px 16px !important;
     font-size: 0.9em !important;
-    color: #1a2a6c !important;
+    color: #c6d8f5 !important;
     max-width: 82% !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) [data-testid="stChatMessageContent"] {
-    background: #ECECEC !important;
-    border: 1px solid #D0D0D0 !important;
+    background: #313244 !important;
+    border: 1px solid #45475a !important;
     border-radius: 4px 16px 16px 16px !important;
     padding: 14px 18px !important;
     font-size: 0.9em !important;
-    color: #1a1a1a !important;
+    color: #cdd6f4 !important;
     max-width: 90% !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
 }
 [data-testid="stChatMessageAvatarUser"],
 [data-testid="stChatMessageAvatarAssistant"] {
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-    font-size: 0.85em !important;
+    width: 30px !important; height: 30px !important;
+    min-width: 30px !important; font-size: 0.85em !important;
 }
 
 /* ── Audio ── */
@@ -235,28 +215,28 @@ audio { width: 100% !important; margin-top: 10px; border-radius: 6px; }
 
 /* ── Form container ── */
 [data-testid="stForm"] {
-    background: #E2E2E2 !important;
-    border: 1px solid #C8C8C8 !important;
+    background: #181825 !important;
+    border: 1px solid #45475a !important;
     border-radius: 10px;
     padding: 12px;
 }
 
 /* ── Alerts ── */
 [data-testid="stAlert"] {
-    background: #DDE3FA !important;
-    border: 1px solid #BCC5F5 !important;
+    background: #1e2a4a !important;
+    border: 1px solid #2a5298 !important;
     border-radius: 8px !important;
-    color: #2c3ea0 !important;
+    color: #89b4fa !important;
     font-size: 0.85em !important;
 }
 
 /* ── Divider ── */
-hr { border-color: #D0D0D0 !important; margin: 12px 0 !important; }
+hr { border-color: #45475a !important; margin: 12px 0 !important; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #FAFAFA; }
-::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 2px; }
+::-webkit-scrollbar-track { background: #1e1e2e; }
+::-webkit-scrollbar-thumb { background: #45475a; border-radius: 2px; }
 
 /* ── Sidebar labels ── */
 .section-label {
@@ -264,28 +244,28 @@ hr { border-color: #D0D0D0 !important; margin: 12px 0 !important; }
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #777;
+    color: #6c7086;
     margin: 20px 0 8px;
 }
 
 /* ── Report card ── */
 .report-card {
-    background: #DCDCDC;
-    border: 1px solid #C8C8C8;
+    background: #313244;
+    border: 1px solid #45475a;
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 6px;
     font-size: 0.8em;
-    color: #000 !important;
+    color: #cdd6f4 !important;
     line-height: 1.4;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* ── Info banner ── */
 .info-banner {
-    background: #EBEBEB;
-    border: 1px solid #D0D0D0;
-    border-left: 3px solid #4056CE;
+    background: #181825;
+    border: 1px solid #45475a;
+    border-left: 3px solid #89b4fa;
     border-radius: 10px;
     padding: 18px 22px;
     margin-bottom: 24px;
@@ -397,9 +377,9 @@ with st.spinner("Loading reports…"):
 
 with st.sidebar:
     st.markdown("""
-        <div style="padding-bottom:16px;border-bottom:1px solid #C8C8C8">
-            <div style="font-size:1.1em;font-weight:700;color:#111;letter-spacing:-0.02em">🎙️ Fitch Voice Agent</div>
-            <div style="font-size:0.75em;color:#777;margin-top:3px">by Federico Canepa</div>
+        <div style="padding-bottom:16px;border-bottom:1px solid #45475a">
+            <div style="font-size:1.1em;font-weight:700;color:#cdd6f4;letter-spacing:-0.02em">🎙️ Fitch Voice Agent</div>
+            <div style="font-size:0.75em;color:#6c7086;margin-top:3px">by Federico Canepa</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -445,7 +425,7 @@ with st.sidebar:
 
     for r in st.session_state.indexed_reports:
         label = label_from_url(r)
-        st.markdown(f'<div class="report-card" style="color:#000!important;font-weight:600">{label[:58]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="report-card">{label[:58]}</div>', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         with c1:
             if st.button("💬 Ask", key=f"ask_{r}", use_container_width=True):
@@ -454,8 +434,8 @@ with st.sidebar:
         with c2:
             st.markdown(
                 f'<a href="{r}" target="_blank" style="text-decoration:none">'
-                f'<button style="width:100%;padding:6px;border-radius:6px;border:1px solid #E5E5E5;'
-                f'background:#fff;color:#3D3D3D;cursor:pointer;font-family:Inter,sans-serif;'
+                f'<button style="width:100%;padding:6px;border-radius:6px;border:1px solid #45475a;'
+                f'background:#313244;color:#cdd6f4;cursor:pointer;font-family:Inter,sans-serif;'
                 f'font-size:0.78em;font-weight:500;letter-spacing:0.03em;text-transform:uppercase">'
                 f'🔗 View</button></a>',
                 unsafe_allow_html=True,
@@ -466,10 +446,10 @@ with st.sidebar:
 hcol, bcol = st.columns([11, 1])
 with hcol:
     st.markdown("""
-        <h1 style="font-size:1.9em;font-weight:700;letter-spacing:-0.03em;color:#000;margin:0 0 4px">
+        <h1 style="font-size:1.9em;font-weight:700;letter-spacing:-0.03em;color:#cdd6f4;margin:0 0 4px">
             Fitch Voice Agent
         </h1>
-        <p style="font-size:0.85em;color:#999;margin:0 0 20px;font-weight:400">
+        <p style="font-size:0.85em;color:#a6adc8;margin:0 0 20px;font-weight:400">
             Ask anything about Federico Canepa's published Fitch Ratings Structured Finance Reports
         </p>
     """, unsafe_allow_html=True)
@@ -485,23 +465,23 @@ with bcol:
 if st.session_state.show_banner:
     st.markdown("""
 <div class="info-banner" id="fitch-banner">
-  <div style="font-size:0.7em;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#4056CE;margin-bottom:10px">
+  <div style="font-size:0.7em;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#89b4fa;margin-bottom:10px">
     About this app
   </div>
-  <p style="font-size:0.88em;color:#3D3D3D;line-height:1.7;margin:0 0 12px">
+  <p style="font-size:0.88em;color:#a6adc8;line-height:1.7;margin:0 0 12px">
     An AI-powered voice research assistant built on top of
     <a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank"
-       style="color:#4056CE;font-weight:500;text-decoration:none">Fitch Ratings Structured Finance Reports</a>
-    authored by <strong>Federico Canepa</strong>. Answers are generated by Claude AI and spoken aloud
+       style="color:#89b4fa;font-weight:500;text-decoration:none">Fitch Ratings Structured Finance Reports</a>
+    authored by <strong style="color:#cdd6f4">Federico Canepa</strong>. Answers are generated by Claude AI and spoken aloud
     in real time using the
-    <a href="https://elevenlabs.io" target="_blank" style="color:#4056CE;font-weight:500;text-decoration:none">ElevenLabs TTS API</a>
-    (<code style="background:#F5F5F5;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#3D3D3D">eleven_turbo_v2</code>)
-    via the official Python SDK, with voice selection and speed control via <code style="background:#F5F5F5;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#3D3D3D">VoiceSettings</code>.
+    <a href="https://elevenlabs.io" target="_blank" style="color:#89b4fa;font-weight:500;text-decoration:none">ElevenLabs TTS API</a>
+    (<code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">eleven_turbo_v2</code>)
+    via the official Python SDK, with voice selection and speed control via <code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">VoiceSettings</code>.
   </p>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #E5E5E5;padding-top:10px;margin-top:4px">
-    <span style="font-size:0.78em;color:#999;font-weight:500">① Select a report in the sidebar</span>
-    <span style="font-size:0.78em;color:#999;font-weight:500">② Ask a question below</span>
-    <span style="font-size:0.78em;color:#999;font-weight:500">③ Press ▶ to hear the answer</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #45475a;padding-top:10px;margin-top:4px">
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">① Select a report in the sidebar</span>
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">② Ask a question below</span>
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">③ Press ▶ to hear the answer</span>
   </div>
 </div>
 
