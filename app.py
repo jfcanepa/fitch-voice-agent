@@ -337,7 +337,13 @@ def get_elevenlabs_voices() -> list[dict]:
         return []
 
 
-def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes | None, str]:
+def generate_audio(
+    text: str,
+    voice_id: str,
+    speed: float = 1.0,
+    stability: float = 0.5,
+    similarity: float = 0.75,
+) -> tuple[bytes | None, str]:
     api_key = os.getenv("ELEVENLABS_API_KEY")
     if api_key:
         try:
@@ -348,19 +354,37 @@ def generate_audio(text: str, voice_id: str, speed: float = 1.0) -> tuple[bytes 
                 text=text,
                 model_id="eleven_turbo_v2",
                 output_format="mp3_44100_128",
-                voice_settings=VoiceSettings(speed=speed),
+                voice_settings=VoiceSettings(
+                    speed=speed,
+                    stability=stability,
+                    similarity_boost=similarity,
+                ),
             )
-            return b"".join(chunks), "ElevenLabs"
+            return b"".join(chunks), "elevenlabs"
         except Exception:
             pass
-    try:
-        import io
-        from gtts import gTTS
-        buf = io.BytesIO()
-        gTTS(text=text, lang="en", slow=(speed < 0.85)).write_to_fp(buf)
-        return buf.getvalue(), "gTTS"
-    except Exception:
-        return None, ""
+    return None, "browser"
+
+
+def browser_tts_widget(text: str, speed: float = 1.0) -> None:
+    """Render a Web Speech API player — works in every modern browser, no API key needed."""
+    import json
+    safe = json.dumps(text)
+    st.components.v1.html(f"""
+    <button id="tts-btn" onclick="
+        var u = new SpeechSynthesisUtterance({safe});
+        u.rate = {speed};
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+        this.textContent = '⏹ Stop';
+        u.onend = function() {{ document.getElementById('tts-btn').textContent = '▶ Play'; }};
+    " style="
+        background:#313244;border:1px solid #45475a;color:#cdd6f4;
+        border-radius:6px;padding:7px 16px;cursor:pointer;
+        font-family:Inter,sans-serif;font-size:0.8em;font-weight:500;
+        letter-spacing:0.03em;width:100%;margin-top:8px;
+    ">▶ Play (Browser TTS)</button>
+    """, height=55)
 
 
 # ── Data ──────────────────────────────────────────────────────────────────────
@@ -444,11 +468,17 @@ with st.sidebar:
             selected_voice_id = voice_ids[voice_names.index(selected_name)]
         else:
             selected_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
-            st.caption("Using Google TTS fallback")
-        speed = st.slider("Speed", min_value=0.7, max_value=1.5, value=1.0, step=0.05)
+            st.caption("Using browser TTS fallback")
+        speed       = st.slider("Speed",       min_value=0.7, max_value=1.5, value=1.0,  step=0.05)
+        stability   = st.slider("Stability",   min_value=0.0, max_value=1.0, value=0.5,  step=0.05,
+                                help="Higher = more consistent, lower = more expressive")
+        similarity  = st.slider("Clarity",     min_value=0.0, max_value=1.0, value=0.75, step=0.05,
+                                help="Similarity boost — how closely the voice matches the original")
     else:
         selected_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
-        speed = 1.0
+        speed      = 1.0
+        stability  = 0.5
+        similarity = 0.75
 
     # Reports
     st.markdown('<div class="section-label">Reports</div>', unsafe_allow_html=True)
@@ -522,7 +552,8 @@ if st.session_state.show_banner:
     in real time using the
     <a href="https://elevenlabs.io" target="_blank" style="color:#89b4fa;font-weight:500;text-decoration:none">ElevenLabs TTS API</a>
     (<code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">eleven_turbo_v2</code>)
-    via the official Python SDK, with voice selection and speed control via <code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">VoiceSettings</code>.
+    via the official Python SDK. Voice parameters — speed, stability, and similarity boost — are exposed live
+    via <code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">VoiceSettings</code> in the sidebar. Falls back to browser-native Web Speech API when offline.
   </p>
   <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #45475a;padding-top:10px;margin-top:4px">
     <span style="font-size:0.78em;color:#6c7086;font-weight:500">① Select a report in the sidebar</span>
@@ -597,6 +628,8 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"])
         if msg.get("audio"):
             st.audio(msg["audio"], format="audio/mp3")
+        elif msg.get("role") == "assistant" and msg.get("use_browser_tts") and voice_enabled:
+            browser_tts_widget(msg["content"], speed)
 
 # ── Chat input ────────────────────────────────────────────────────────────────
 
@@ -628,16 +661,21 @@ if query:
         audio_bytes = None
         if voice_enabled:
             with st.spinner("Generating audio…"):
-                audio_bytes, audio_source = generate_audio(response, selected_voice_id, speed)
+                audio_bytes, audio_source = generate_audio(
+                    response, selected_voice_id, speed, stability, similarity
+                )
             if audio_bytes:
                 st.audio(audio_bytes, format="audio/mp3")
                 st.markdown(
-                    f'<div style="font-size:0.72em;color:#999;margin-top:2px">▶ Press play · via {audio_source}</div>',
+                    '<div style="font-size:0.72em;color:#6c7086;margin-top:2px">▶ Press play · ElevenLabs</div>',
                     unsafe_allow_html=True,
                 )
+            elif audio_source == "browser":
+                browser_tts_widget(response, speed)
 
     st.session_state.messages.append({
         "role": "assistant",
         "content": response,
         "audio": audio_bytes,
+        "use_browser_tts": audio_source == "browser" if voice_enabled else False,
     })
