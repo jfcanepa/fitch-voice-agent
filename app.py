@@ -144,7 +144,26 @@ with st.spinner("Loading reports…"):
 # ── Header ────────────────────────────────────────────────────────────────────
 
 st.title("📊 Fitch Voice Agent")
-st.caption("Ask questions about your Fitch Ratings structured finance reports.")
+
+st.markdown("""
+<div style="background:#181825;border-left:4px solid #89b4fa;border-radius:8px;padding:16px 20px;margin-bottom:1.2rem;">
+<strong style="color:#89b4fa;font-size:1.05em;">What is this?</strong><br><br>
+<span style="color:#cdd6f4;">
+This is an AI-powered research assistant built on top of published
+<a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank" style="color:#89b4fa;">Fitch Ratings structured finance reports</a>
+authored by <strong>Federico Canepa</strong>.
+</span>
+<br><br>
+<strong style="color:#a6e3a1;">How to use it:</strong>
+<ol style="color:#cdd6f4;margin:8px 0 0 0;padding-left:1.2em;line-height:1.8em;">
+  <li>The reports in the sidebar are pre-loaded — no setup needed.</li>
+  <li>Type any question in the chat box below (e.g. <em>"Which trusts were downgraded?"</em>).</li>
+  <li>The agent finds the relevant excerpts and answers using Claude AI.</li>
+  <li>Press <strong>▶ Play</strong> on the audio player to hear the answer spoken aloud.</li>
+  <li>Use the <strong>Voice Settings</strong> in the sidebar to change voice or speed.</li>
+</ol>
+</div>
+""", unsafe_allow_html=True)
 
 if not os.getenv("ANTHROPIC_API_KEY"):
     st.error("ANTHROPIC_API_KEY is not set. Add it in Streamlit Cloud → Settings → Secrets.", icon="🔑")
