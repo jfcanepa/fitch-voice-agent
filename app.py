@@ -137,6 +137,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "indexed_reports" not in st.session_state:
     st.session_state.indexed_reports = list(DEFAULT_REPORTS)
+if "focus_url" not in st.session_state:
+    st.session_state.focus_url = None  # URL of report to ask about next
 
 with st.spinner("Loading reports…"):
     preload_reports()
@@ -241,8 +243,16 @@ with st.sidebar:
 
     if st.session_state.indexed_reports:
         for r in st.session_state.indexed_reports:
-            label = r.rstrip("/").split("/")[-1].replace("-", " ").title()[:38]
-            st.markdown(f'<a href="{r}" target="_blank" class="report-pill">📄 {label}</a>', unsafe_allow_html=True)
+            label = r.rstrip("/").split("/")[-1].replace("-", " ").title()
+            st.markdown(f"**{label[:55]}**")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💬 Ask about this", key=f"ask_{r}", use_container_width=True):
+                    st.session_state.focus_url = r
+                    st.rerun()
+            with col2:
+                st.markdown(f'<a href="{r}" target="_blank"><button style="width:100%;padding:6px;border-radius:6px;border:1px solid #6c7086;background:#313244;color:#cdd6f4;cursor:pointer;font-size:0.85em;">🔗 View report</button></a>', unsafe_allow_html=True)
+            st.divider()
     else:
         st.info("No reports yet. Add one above.")
 
@@ -254,9 +264,25 @@ for msg in st.session_state.messages:
         if msg.get("audio"):
             st.audio(msg["audio"], format="audio/mp3")
 
+# ── Focus report banner ───────────────────────────────────────────────────────
+
+focus_url = st.session_state.focus_url
+if focus_url:
+    focus_label = focus_url.rstrip("/").split("/")[-1].replace("-", " ").title()
+    st.info(f"💬 Asking about: **{focus_label}**", icon="📄")
+    col_a, col_b = st.columns([3, 1])
+    with col_b:
+        if st.button("✕ Ask all reports"):
+            st.session_state.focus_url = None
+            st.rerun()
+
 # ── Chat input ────────────────────────────────────────────────────────────────
 
 if query := st.chat_input("Ask a question about your reports…"):
+    # If a focus report was set via sidebar button, auto-trigger a summary
+    active_focus = st.session_state.focus_url
+    st.session_state.focus_url = None  # reset after use
+
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user", avatar="🧑"):
         st.markdown(query)
@@ -265,7 +291,7 @@ if query := st.chat_input("Ask a question about your reports…"):
         with st.spinner("Thinking…"):
             try:
                 from agent import answer
-                response = answer(query)
+                response = answer(query, url_filter=active_focus)
             except Exception as e:
                 response = f"Error: {e}"
 

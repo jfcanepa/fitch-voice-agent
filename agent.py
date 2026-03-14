@@ -33,11 +33,13 @@ def get_collection() -> chromadb.Collection:
     )
 
 
-def retrieve(query: str, collection: chromadb.Collection) -> list[dict]:
+def retrieve(query: str, collection: chromadb.Collection, url_filter: str | None = None) -> list[dict]:
+    where = {"url": url_filter} if url_filter else None
     results = collection.query(
         query_texts=[query],
         n_results=TOP_K,
         include=["documents", "metadatas", "distances"],
+        where=where,
     )
     chunks = []
     for doc, meta, dist in zip(
@@ -61,13 +63,13 @@ def build_context(chunks: list[dict]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
-def answer(query: str, verbose: bool = False) -> str:
+def answer(query: str, verbose: bool = False, url_filter: str | None = None) -> str:
     collection = get_collection()
 
     if collection.count() == 0:
         return "No reports have been indexed yet. Add one using the sidebar."
 
-    chunks = retrieve(query, collection)
+    chunks = retrieve(query, collection, url_filter=url_filter)
 
     if verbose:
         print("\n[Retrieved chunks]")
