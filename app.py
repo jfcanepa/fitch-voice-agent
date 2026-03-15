@@ -361,31 +361,38 @@ def generate_audio(
                 ),
             )
             return b"".join(chunks), "elevenlabs"
-        except Exception:
-            pass
+        except Exception as e:
+            return None, f"error:{e}"
     return None, "browser"
 
 
 def browser_tts_widget(text: str, speed: float = 1.0) -> None:
-    """Render a Web Speech API player using the parent window's speechSynthesis."""
+    """Render a Web Speech API player via a full HTML document with script block."""
     import json
     safe = json.dumps(text)
-    st.components.v1.html(f"""
-    <button id="tts-btn" onclick="
-        var synth = window.parent.speechSynthesis || window.speechSynthesis;
-        var u = new (window.parent.SpeechSynthesisUtterance || SpeechSynthesisUtterance)({safe});
-        u.rate = {speed};
-        synth.cancel();
-        synth.speak(u);
-        this.textContent = '⏹ Stop';
-        u.onend = function() {{ document.getElementById('tts-btn').textContent = '▶ Play'; }};
-    " style="
-        background:#313244;border:1px solid #45475a;color:#cdd6f4;
-        border-radius:6px;padding:7px 16px;cursor:pointer;
-        font-family:Inter,sans-serif;font-size:0.8em;font-weight:500;
-        letter-spacing:0.03em;width:100%;margin-top:8px;
-    ">▶ Play (Browser TTS)</button>
-    """, height=55)
+    html = f"""<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:transparent">
+<script>
+var T = {safe};
+var R = {speed};
+function toggle(btn) {{
+    var s = window.speechSynthesis;
+    if (s.speaking) {{ s.cancel(); btn.textContent = '\u25b6 Play'; return; }}
+    var u = new SpeechSynthesisUtterance(T);
+    u.rate = R;
+    u.onend = function() {{ btn.textContent = '\u25b6 Play'; }};
+    s.speak(u);
+    btn.textContent = '\u23f9 Stop';
+}}
+</script>
+<button onclick="toggle(this)" style="
+    background:#313244;border:1px solid #45475a;color:#cdd6f4;
+    border-radius:6px;padding:7px 16px;cursor:pointer;
+    font-family:Inter,sans-serif;font-size:13px;font-weight:500;
+    letter-spacing:0.03em;width:100%;
+">&#9654; Play (Browser TTS)</button>
+</body></html>"""
+    st.components.v1.html(html, height=50)
 
 
 # ── Data ──────────────────────────────────────────────────────────────────────
@@ -674,7 +681,10 @@ if query:
                     '<div style="font-size:0.72em;color:#6c7086;margin-top:2px">▶ Press play · ElevenLabs</div>',
                     unsafe_allow_html=True,
                 )
-            elif audio_source == "browser":
+            elif audio_source.startswith("error:"):
+                st.warning(f"ElevenLabs error: {audio_source[6:]}", icon="⚠️")
+                browser_tts_widget(response, speed)
+            else:
                 browser_tts_widget(response, speed)
 
     st.session_state.messages.append({
