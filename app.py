@@ -9,6 +9,12 @@ import re
 import streamlit as st
 from dotenv import load_dotenv
 
+st.set_page_config(
+    page_title="Fitch Voice Agent · Federico Canepa",
+    page_icon="🎙️",
+    layout="centered",
+)
+
 load_dotenv()
 
 try:
@@ -16,12 +22,6 @@ try:
         os.environ.setdefault(_k, str(_v))
 except Exception:
     pass
-
-st.set_page_config(
-    page_title="Fitch Voice Agent · Federico Canepa",
-    page_icon="🎙️",
-    layout="centered",
-)
 
 # ── ElevenLabs-inspired design system ────────────────────────────────────────
 # Palette: #FDFCFC bg · #FFFFFF cards · #E5E5E5 borders
@@ -363,8 +363,8 @@ def generate_audio(
             return b"".join(chunks), "elevenlabs"
         except Exception as e:
             msg = str(e)
-            if "401" in msg or "unusual_activity" in msg or "detected_unusual" in msg:
-                return None, "error:ElevenLabs free tier is blocked on cloud IPs — upgrade to a paid plan to enable voice."
+            if "401" in msg or "unauthorized" in msg.lower():
+                return None, "error:ElevenLabs API key is missing or invalid. Check your Secrets configuration."
             return None, f"error:{msg[:120]}"
     return None, "browser"
 
@@ -449,10 +449,16 @@ def preload_reports():
 # ── Session state ─────────────────────────────────────────────────────────────
 
 if "messages"        not in st.session_state: st.session_state.messages        = []
-if "indexed_reports" not in st.session_state: st.session_state.indexed_reports = list(DEFAULT_REPORTS)
+if "user_reports"    not in st.session_state: st.session_state.user_reports    = []
 if "focus_url"       not in st.session_state: st.session_state.focus_url       = None
 if "show_banner"     not in st.session_state: st.session_state.show_banner     = True
 if "pending_query"   not in st.session_state: st.session_state.pending_query   = None
+if "spanish_mode"    not in st.session_state: st.session_state.spanish_mode    = False
+
+# Merge default reports with user-added reports (defaults always present)
+st.session_state.indexed_reports = list(DEFAULT_REPORTS) + [
+    u for u in st.session_state.user_reports if u not in DEFAULT_REPORTS
+]
 
 with st.spinner("Loading reports…"):
     preload_reports()
@@ -494,6 +500,11 @@ with st.sidebar:
         stability  = 0.5
         similarity = 0.75
 
+    # Language
+    st.markdown('<div class="section-label">Language</div>', unsafe_allow_html=True)
+    spanish_mode = st.toggle("🌐 Spanish Mode", value=st.session_state.spanish_mode, key="spanish_toggle")
+    st.session_state.spanish_mode = spanish_mode
+
     # Reports
     st.markdown('<div class="section-label">Reports</div>', unsafe_allow_html=True)
 
@@ -501,14 +512,18 @@ with st.sidebar:
         url_input = st.text_input("URL", placeholder="https://www.fitchratings.com/research/…", label_visibility="collapsed")
         if st.form_submit_button("＋ Add Report", use_container_width=True):
             if url_input.strip():
+                clean_url = url_input.strip()
                 with st.spinner("Indexing…"):
                     try:
                         from ingest import ingest_url
-                        count = ingest_url(url_input.strip())
+                        count = ingest_url(clean_url)
                         if count:
-                            st.session_state.indexed_reports.append(url_input.strip())
+                            if clean_url not in st.session_state.user_reports:
+                                st.session_state.user_reports.append(clean_url)
                             st.success(f"Added — {count} chunks indexed.")
                         else:
+                            if clean_url not in st.session_state.user_reports and clean_url not in DEFAULT_REPORTS:
+                                st.session_state.user_reports.append(clean_url)
                             st.info("Already indexed.")
                     except Exception as e:
                         st.error(str(e))
@@ -553,11 +568,24 @@ with bcol:
 # ── Info banner ───────────────────────────────────────────────────────────────
 
 if st.session_state.show_banner:
-    st.markdown("""
-<div class="info-banner" id="fitch-banner">
-  <div style="font-size:0.7em;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#89b4fa;margin-bottom:10px">
-    About this app
+    tab_overview, tab_technical = st.tabs(["Overview", "Technical"])
+    with tab_overview:
+        st.markdown("""
+<div class="info-banner">
+  <p style="font-size:0.88em;color:#a6adc8;line-height:1.7;margin:0 0 12px">
+    Ask questions about Fitch Ratings structured finance research and hear the answers spoken aloud.
+    Select a report in the sidebar, type your question, and press the send button.
+  </p>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #45475a;padding-top:10px;margin-top:4px">
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">① Select a report in the sidebar</span>
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">② Ask a question below</span>
+    <span style="font-size:0.78em;color:#6c7086;font-weight:500">③ Press ▶ to hear the answer</span>
   </div>
+</div>
+""", unsafe_allow_html=True)
+    with tab_technical:
+        st.markdown("""
+<div class="info-banner">
   <p style="font-size:0.88em;color:#a6adc8;line-height:1.7;margin:0 0 12px">
     An AI-powered voice research assistant built on top of
     <a href="https://www.fitchratings.com/search/?query=federico+canepa" target="_blank"
@@ -569,27 +597,7 @@ if st.session_state.show_banner:
     via the official Python SDK. Voice parameters — speed, stability, and similarity boost — are exposed live
     via <code style="background:#313244;padding:1px 5px;border-radius:4px;font-size:0.9em;color:#cdd6f4">VoiceSettings</code> in the sidebar. Falls back to browser-native Web Speech API when offline.
   </p>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid #45475a;padding-top:10px;margin-top:4px">
-    <span style="font-size:0.78em;color:#6c7086;font-weight:500">① Select a report in the sidebar</span>
-    <span style="font-size:0.78em;color:#6c7086;font-weight:500">② Ask a question below</span>
-    <span style="font-size:0.78em;color:#6c7086;font-weight:500">③ Press ▶ to hear the answer</span>
-  </div>
 </div>
-
-<script>
-(function() {
-    setTimeout(function() {
-        var el = window.parent.document.getElementById('fitch-banner');
-        if (el) {
-            el.style.opacity = '0';
-            el.style.maxHeight = '0';
-            el.style.padding = '0 22px';
-            el.style.marginBottom = '0';
-            el.style.border = 'none';
-        }
-    }, 30000);
-})();
-</script>
 """, unsafe_allow_html=True)
 
 if not os.getenv("ANTHROPIC_API_KEY"):
@@ -599,9 +607,10 @@ if not os.getenv("ANTHROPIC_API_KEY"):
 
 if st.session_state.focus_url:
     focus_label = st.session_state.focus_url.rstrip("/").split("/")[-1].replace("-", " ").title()
+    flag = " 🇲🇽" if st.session_state.spanish_mode else ""
     fc1, fc2 = st.columns([5, 1])
     with fc1:
-        st.info(f"📄 Focused on: **{focus_label[:55]}**")
+        st.info(f"📄 Focused on: **{focus_label[:55]}**{flag}")
     with fc2:
         st.markdown("<div style='padding-top:8px'>", unsafe_allow_html=True)
         if st.button("✕ Clear", key="clear_focus"):
@@ -652,7 +661,10 @@ if st.session_state.pending_query:
     query = st.session_state.pending_query
     st.session_state.pending_query = None
 else:
-    query = st.chat_input("Ask a question about the reports…")
+    chat_placeholder = ("Haz una pregunta sobre los reportes…"
+                        if st.session_state.spanish_mode
+                        else "Ask a question about the reports…")
+    query = st.chat_input(chat_placeholder)
 
 if query:
     active_focus = st.session_state.focus_url
@@ -663,10 +675,16 @@ if query:
         st.markdown(query)
 
     with st.chat_message("assistant", avatar="🎙️"):
-        with st.spinner("Thinking…"):
+        # Build system prompt override for Spanish mode
+        spanish_prompt = None
+        if st.session_state.spanish_mode:
+            from agent import SYSTEM_PROMPT as _BASE_PROMPT
+            spanish_prompt = _BASE_PROMPT + "\n\nRespond in Spanish. Use financial terminology standard in Mexico and Latin America."
+
+        with st.spinner("Pensando…" if st.session_state.spanish_mode else "Thinking…"):
             try:
                 from agent import answer
-                response = answer(query, url_filter=active_focus)
+                response = answer(query, url_filter=active_focus, system_prompt=spanish_prompt)
             except Exception as e:
                 response = f"Error: {e}"
 
@@ -674,9 +692,11 @@ if query:
 
         audio_bytes = None
         if voice_enabled:
-            with st.spinner("Generating audio…"):
+            # Use Valentina voice for Spanish mode
+            tts_voice = "XB0fDUnXU5powFXDhCwa" if st.session_state.spanish_mode else selected_voice_id
+            with st.spinner("Generando audio…" if st.session_state.spanish_mode else "Generating audio…"):
                 audio_bytes, audio_source = generate_audio(
-                    response, selected_voice_id, speed, stability, similarity
+                    response, tts_voice, speed, stability, similarity
                 )
             if audio_bytes:
                 st.audio(audio_bytes, format="audio/mp3")

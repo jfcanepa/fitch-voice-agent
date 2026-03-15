@@ -63,7 +63,7 @@ def build_context(chunks: list[dict]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
-def answer(query: str, verbose: bool = False, url_filter: str | None = None) -> str:
+def answer(query: str, verbose: bool = False, url_filter: str | None = None, system_prompt: str | None = None) -> str:
     collection = get_collection()
 
     if collection.count() == 0:
@@ -82,7 +82,7 @@ def answer(query: str, verbose: bool = False, url_filter: str | None = None) -> 
     response = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=400,
-        system=SYSTEM_PROMPT,
+        system=system_prompt or SYSTEM_PROMPT,
         messages=[
             {
                 "role": "user",
