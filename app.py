@@ -362,7 +362,10 @@ def generate_audio(
             )
             return b"".join(chunks), "elevenlabs"
         except Exception as e:
-            return None, f"error:{e}"
+            msg = str(e)
+            if "401" in msg or "unusual_activity" in msg or "detected_unusual" in msg:
+                return None, "error:ElevenLabs free tier is blocked on cloud IPs — upgrade to a paid plan to enable voice."
+            return None, f"error:{msg[:120]}"
     return None, "browser"
 
 
